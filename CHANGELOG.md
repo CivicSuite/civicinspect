@@ -4,6 +4,12 @@ All notable changes to CivicInspect will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- Production-depth case persistence slice with `CIVICINSPECT_CASE_DB_URL`, persisted repeat-case records, persisted report-draft records, and retrieval by `report_id`.
+
 ## [0.1.1] - 2026-04-28
 
 ### Changed

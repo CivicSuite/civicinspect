@@ -2,7 +2,7 @@
 
 CivicInspect is the CivicSuite module for inspection support: repeat-case lookup, inspector-owned report drafting, notice draft support, and records-ready inspection exports.
 
-Current state: **v0.1.1 inspection support foundation release**. This repo ships a FastAPI package aligned to `civiccore==0.3.0`, health/root endpoints, documentation gates, deterministic sample repeat-case lookup, report draft helper, notice draft helper, records-ready export checklist, and accessible public sample UI at `/civicinspect`. It does **not** ship official findings, citations, fines, notices, inspection scheduling, legal advice, live photo analysis, live LLM calls, or system-of-record integrations.
+Current state: **v0.1.1 inspection support foundation release plus production-depth case persistence slice**. This repo ships a FastAPI package aligned to `civiccore==0.3.0`, health/root endpoints, documentation gates, deterministic sample repeat-case lookup, optional database-backed repeat-case and report-draft records via `CIVICINSPECT_CASE_DB_URL`, report draft helper, notice draft helper, records-ready export checklist, and accessible public sample UI at `/civicinspect`. It does **not** ship official findings, citations, fines, notices, inspection scheduling, legal advice, live photo analysis, live LLM calls, or system-of-record integrations.
 
 ## What CivicInspect Does
 
@@ -27,8 +27,11 @@ Current state: **v0.1.1 inspection support foundation release**. This repo ships
 - `GET /civicinspect` returns the accessible public sample UI.
 - `POST /api/v1/civicinspect/cases/repeat-lookup` returns sample repeat-case context.
 - `POST /api/v1/civicinspect/reports/draft` returns an inspector-review-required report draft.
+- `GET /api/v1/civicinspect/reports/{report_id}` retrieves persisted report records when `CIVICINSPECT_CASE_DB_URL` is configured.
 - `POST /api/v1/civicinspect/notices/draft` returns a notice draft with required staff actions.
 - `POST /api/v1/civicinspect/export` returns a records-ready inspection export checklist.
+
+Set `CIVICINSPECT_CASE_DB_URL` to enable persistent repeat-case and report-draft records. When unset, CivicInspect continues to use deterministic in-memory sample data.
 
 ## Local Development
 
