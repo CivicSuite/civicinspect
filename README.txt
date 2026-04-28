@@ -3,7 +3,7 @@ CivicInspect
 
 CivicInspect is the CivicSuite module for inspection support: repeat-case lookup, inspector-owned report drafting, notice draft support, and records-ready inspection exports.
 
-Current state: v0.1.0 inspection support foundation release. It ships deterministic sample helpers and an accessible public sample UI at /civicinspect.
+Current state: v0.1.1 inspection support foundation release. It ships deterministic sample helpers, civiccore==0.3.0 alignment, and an accessible public sample UI at /civicinspect.
 
 Not shipped: official findings, citations, fines, notices, inspection scheduling, legal advice, live photo analysis, live LLM calls, or system-of-record integrations.
 

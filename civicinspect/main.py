@@ -60,7 +60,7 @@ def root() -> dict[str, str]:
             "foundation are online; official findings, citations, fines, inspection scheduling, live "
             "photo analysis, live LLM calls, and system-of-record integrations are not implemented yet."
         ),
-        "next_step": "Post-v0.1.0 roadmap: local inspection configuration, CivicCode context APIs, and staff review queues",
+        "next_step": "Post-v0.1.1 roadmap: local inspection configuration, CivicCode context APIs, and staff review queues",
     }
 
 
