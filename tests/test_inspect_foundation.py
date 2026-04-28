@@ -102,6 +102,6 @@ def test_public_ui_route_is_accessible_and_honest() -> None:
     text = response.text
     assert '<a class="skip-link" href="#main">Skip to main content</a>' in text
     assert '<main id="main" tabindex="-1">' in text
-    assert "v0.1.0 inspection support foundation" in text
+    assert "v0.1.1 inspection support foundation" in text
     assert "does not issue official findings" in text
     assert "system-of-record updates" in text

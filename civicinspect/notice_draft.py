@@ -1,4 +1,4 @@
-"""Notice draft helpers for CivicInspect v0.1.0."""
+"""Notice draft helpers for CivicInspect v0.1.1."""
 
 from __future__ import annotations
 
