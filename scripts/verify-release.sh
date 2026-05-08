@@ -8,8 +8,8 @@ find_python() {
   if [[ -n "${CIVICINSPECT_RELEASE_PYTHON:-}" ]]; then
     candidates+=("${CIVICINSPECT_RELEASE_PYTHON}")
   fi
-  command -v python >/dev/null 2>&1 && candidates+=("$(command -v python)")
   command -v python3 >/dev/null 2>&1 && candidates+=("$(command -v python3)")
+  command -v python >/dev/null 2>&1 && candidates+=("$(command -v python)")
   command -v py >/dev/null 2>&1 && candidates+=("py -3")
   [[ -x "/c/Windows/py.exe" ]] && candidates+=("/c/Windows/py.exe -3")
   [[ -x "/mnt/c/Windows/py.exe" ]] && candidates+=("/mnt/c/Windows/py.exe -3")
@@ -94,4 +94,3 @@ print("PASS: build artifacts and SHA256SUMS.txt created")
 PY
 
 echo "VERIFY-RELEASE: PASSED"
-

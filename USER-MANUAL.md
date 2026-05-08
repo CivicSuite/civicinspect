@@ -4,11 +4,11 @@
 
 CivicInspect helps inspectors and code-enforcement staff turn field notes into review-ready drafts. It can show sample repeat-case context, draft an inspection report from inspector-supplied notes, draft a notice for staff review, and prepare a records-ready export checklist.
 
-Current state: `0.1.1` inspection support foundation release plus production-depth case persistence slice. CivicInspect can optionally persist repeat-case and report-draft records with `CIVICINSPECT_CASE_DB_URL`. It does not issue official findings, citations, fines, notices, inspection schedules, legal advice, live photo analysis, live LLM calls, or system-of-record updates. Inspectors own every decision.
+Current state: published `0.1.1` foundation label under suite-wide release-recovery review. CivicInspect can optionally persist repeat-case and report-draft records with `CIVICINSPECT_CASE_DB_URL`. It does not issue official findings, citations, fines, notices, inspection schedules, legal advice, live photo analysis, live LLM calls, or system-of-record updates. Inspectors own every decision. Do not promote it as production software until the recovery gates are complete.
 
 ## For IT and Technical Staff
 
-CivicInspect is a FastAPI Python package pinned to `civiccore==0.3.0`. The current runtime exposes:
+CivicInspect is a FastAPI Python package pinned to the CivicCore v0.3.0 release wheel. The current runtime exposes:
 
 - `GET /`
 - `GET /health`
