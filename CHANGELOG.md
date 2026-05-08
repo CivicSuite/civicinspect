@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - Production-depth case persistence slice with `CIVICINSPECT_CASE_DB_URL`, persisted repeat-case records, persisted report-draft records, and retrieval by `report_id`.
+- Suite-wide release-recovery status, WSL-native release-gate proof, browser QA evidence, and regression checks that keep the published v0.1.1 label provisional.
+
+### Changed
+
+- Replaced the unresolved `civiccore==0.3.0` package dependency with the published CivicCore v0.3.0 release wheel so fresh installs do not rely on a hidden CI preinstall step.
+- Updated release verification to prefer `python3` before `python` so WSL runs use native Linux Python when available.
 
 ## [0.1.1] - 2026-04-28
 

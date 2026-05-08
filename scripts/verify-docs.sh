@@ -46,6 +46,12 @@ done
 echo "==> Current-facing shipped/planned truth check"
 current_files=("README.md" "README.txt" "USER-MANUAL.md" "docs/index.html")
 bad_markers=(
+  "Shipping v0.1.1"
+  "product-ready"
+  "product ready"
+  "production-ready"
+  "production ready"
+  "â"
   "official findings are available"
   "legal advice is available"
   "live GIS is available"
@@ -65,4 +71,3 @@ for file in "${current_files[@]}"; do
 done
 
 echo "VERIFY-DOCS: PASSED"
-
