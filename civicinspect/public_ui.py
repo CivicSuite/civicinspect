@@ -1,4 +1,4 @@
-"""Static public UI shell for CivicInspect v1.0.0."""
+"""Static public UI shell for CivicInspect v0.2.0."""
 
 from __future__ import annotations
 
@@ -47,7 +47,7 @@ def render_public_lookup_page() -> str:
   <p class="eyebrow">CivicSuite / CivicInspect public sample</p>
   <h1>Turn field notes into review-ready inspection drafts.</h1>
   <p class="lede">CivicInspect demonstrates inspection support: sample repeat-case lookup, inspector-owned report drafting, notice draft support, staff review queues, CivicCode context packets, and records-ready exports without issuing findings or replacing the system of record.</p>
-  <p><span class="badge">v1.0.0 inspection support + staff review queues</span></p>
+  <p><span class="badge">v0.2.0 inspection support + staff review queues</span></p>
 </header>
 <main id="main" tabindex="-1">
   <section class="grid" aria-labelledby="lookup-title">
