@@ -33,7 +33,7 @@ def test_case_and_report_records_persist(tmp_path) -> None:
     assert reloaded_report is not None
     assert reloaded_report.inspection_id == "insp-100"
     assert reloaded_report.inspector_review_required is True
-    db_path.unlink()
+    db_path.unlink(missing_ok=True)
 
 
 def test_api_uses_configured_case_database(monkeypatch, tmp_path) -> None:
@@ -67,7 +67,8 @@ def test_api_uses_configured_case_database(monkeypatch, tmp_path) -> None:
     assert report_id
     assert get_response.status_code == 200
     assert get_response.json()["report_id"] == report_id
-    db_path.unlink()
+    assert create_response.json()["staff_review_id"]
+    db_path.unlink(missing_ok=True)
 
 
 def test_report_lookup_requires_configured_database() -> None:
@@ -75,3 +76,74 @@ def test_report_lookup_requires_configured_database() -> None:
 
     assert response.status_code == 503
     assert "Set CIVICINSPECT_CASE_DB_URL" in response.json()["detail"]["fix"]
+
+
+def test_staff_review_queue_lifecycle_is_staff_gated_and_persistent(monkeypatch, tmp_path) -> None:
+    db_path = tmp_path / "staff-review-records.db"
+    monkeypatch.setenv("CIVICINSPECT_CASE_DB_URL", f"sqlite:///{db_path}")
+    monkeypatch.setenv("CIVICINSPECT_STAFF_API_KEY", "test-secret")
+    headers = {
+        "X-CivicInspect-Role": "staff",
+        "X-CivicInspect-Staff-Key": "test-secret",
+    }
+
+    try:
+        create_response = client.post(
+            "/api/v1/civicinspect/staff/reviews",
+            headers=headers,
+            json={
+                "inspection_id": "insp-200",
+                "property_reference": "42 Oak Avenue",
+                "reason": "Potential repeat case requires supervisor review.",
+            },
+        )
+        review_id = create_response.json()["review_id"]
+        list_response = client.get("/api/v1/civicinspect/staff/reviews", headers=headers)
+        update_response = client.patch(
+            f"/api/v1/civicinspect/staff/reviews/{review_id}",
+            headers=headers,
+            json={
+                "status": "resolved",
+                "assigned_to": "inspector@example.gov",
+                "resolution": "Supervisor confirmed draft notice boundary.",
+            },
+        )
+        summary_response = client.get("/api/v1/civicinspect/staff/reviews/summary", headers=headers)
+    finally:
+        main_module._dispose_case_repository()
+        main_module._case_db_url = None
+
+    assert create_response.status_code == 200
+    assert create_response.json()["visibility"] == "staff_only"
+    assert list_response.status_code == 200
+    assert list_response.json()["items"][0]["review_id"] == review_id
+    assert update_response.status_code == 200
+    assert update_response.json()["status"] == "resolved"
+    assert summary_response.status_code == 200
+    assert summary_response.json()["total_items"] == 1
+    db_path.unlink()
+
+
+def test_staff_review_queue_rejects_missing_or_spoofed_staff_key(monkeypatch, tmp_path) -> None:
+    db_path = tmp_path / "staff-review-auth.db"
+    monkeypatch.setenv("CIVICINSPECT_CASE_DB_URL", f"sqlite:///{db_path}")
+    monkeypatch.setenv("CIVICINSPECT_STAFF_API_KEY", "test-secret")
+
+    try:
+        missing_role = client.get("/api/v1/civicinspect/staff/reviews")
+        spoofed_key = client.get(
+            "/api/v1/civicinspect/staff/reviews",
+            headers={
+                "X-CivicInspect-Role": "staff",
+                "X-CivicInspect-Staff-Key": "wrong",
+            },
+        )
+    finally:
+        main_module._dispose_case_repository()
+        main_module._case_db_url = None
+
+    assert missing_role.status_code == 403
+    assert "X-CivicInspect-Role" in missing_role.json()["detail"]["fix"]
+    assert spoofed_key.status_code == 403
+    assert "X-CivicInspect-Staff-Key" in spoofed_key.json()["detail"]["fix"]
+    db_path.unlink(missing_ok=True)

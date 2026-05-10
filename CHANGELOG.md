@@ -8,11 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- CivicInspect v1.0.0 product lane: staff review queues, review-required CivicCode/case context packets, adversarial local integration mocks, and current-facing v1 docs.
 - Production-depth case persistence slice with `CIVICINSPECT_CASE_DB_URL`, persisted repeat-case records, persisted report-draft records, and retrieval by `report_id`.
 - Suite-wide release-recovery status, WSL-native release-gate proof, browser QA evidence, and regression checks that keep the published v0.1.1 label provisional.
 
 ### Changed
 
+- Updated package version and current-facing release gate to `1.0.0`.
+- Aligned CivicInspect with the published CivicCore v1.0.0 release wheel.
 - Replaced the unresolved `civiccore==0.3.0` package dependency with the published CivicCore v0.3.0 release wheel so fresh installs do not rely on a hidden CI preinstall step.
 - Updated release verification to prefer `python3` before `python` so WSL runs use native Linux Python when available.
 

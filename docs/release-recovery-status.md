@@ -1,24 +1,26 @@
 # CivicInspect Release-Recovery Status
 
-Date: 2026-05-07
+Date: 2026-05-09
 
 ## Status
 
-CivicInspect `0.1.1` is a published foundation label under suite-wide release-recovery review. It is not product-ready and must not be promoted as production municipal inspection software.
+CivicInspect `v1.0.0` is the active CivicSuite inspection-support release target. This update promotes the prior `0.1.1` foundation into a v1 product lane by adding staff review queues, review-required CivicCode/case context packets, adversarial local integration mocks, CivicCore v1.0.0 alignment, and current-facing documentation.
 
 ## Current Runtime Boundary
 
-The current package provides deterministic sample repeat-case lookup, inspector-owned report draft helpers, notice draft helpers, records-ready export checklist support, optional local case/report persistence with `CIVICINSPECT_CASE_DB_URL`, and a sample public UI at `/civicinspect`.
+The package provides deterministic and optional database-backed repeat-case lookup, inspector-owned report draft helpers, persisted report-draft records, staff-only review queues, notice draft helpers, records-ready export checklist support, review-required inspection context packets, adversarial local integration mocks, and a sample public UI at `/civicinspect`.
 
 It does not issue official findings, citations, fines, notices, inspection schedules, legal advice, live photo analysis, live LLM calls, or system-of-record updates.
 
 ## Recovery Evidence
 
-- WSL-native release verification passed through `scripts/verify-release.sh`: `18 passed`, docs gate passed, placeholder import check passed, Ruff passed, and build artifacts/checksums were created.
-- Fresh install proof resolved CivicCore from the published v0.3.0 release wheel without a hidden CI preinstall: `CivicCore: 0.3.0`, `CivicInspect: 0.1.1`, `WSL platform: linux`.
-- Browser QA covered `docs/index.html` at desktop 1440 x 1000 and mobile 390 x 844 with console, overflow, and keyboard-focus checks.
-- Documentation gates reject stale product-ready language, the old shipping badge, and browser mojibake.
+- Local `scripts/verify-release.sh` passed with 24 tests, documentation gate, placeholder import check, Ruff, wheel build, sdist build, and SHA256 generation.
+- Browser QA covered `/civicinspect` and `docs/index.html` at desktop 1440 x 1000 and mobile 390 x 844.
+- Browser QA recorded zero console messages, zero page errors, no horizontal overflow, visible v1.0.0 copy, visible staff review copy, and visible boundary copy.
+- Staff review queue tests prove create/list/update/summary and auth rejection behavior.
+- Adversarial mock tests prove spoofed roles, attempted findings/citations/fines, stale context, and live photo-analysis claims are blocked for staff review.
+- Browser QA summary: `docs/browser-qa-civicinspect-v1.0.0-summary.md`.
 
 ## Promotion Rule
 
-Do not call CivicInspect finished, shippable, production-ready, or product-ready until a later active-module sprint implements the full CivicInspect v1.0.0 definition of done and passes the release gate.
+CivicInspect may be called v1.0.0-ready only after the release gate, browser QA, docs, release-gate audit, PR/CI, and queue evidence are complete.
