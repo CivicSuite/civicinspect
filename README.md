@@ -1,14 +1,18 @@
 # CivicInspect
 
-CivicInspect is the CivicSuite module for inspection support: repeat-case lookup, inspector-owned report drafting, notice draft support, and records-ready inspection exports.
+CivicInspect is the CivicSuite module for inspection support: repeat-case lookup, inspector-owned report drafting, notice draft support, staff review queues, review-required CivicCode context packets, adversarial local integration mocks, and records-ready inspection exports.
 
-Current state: **published v0.1.1 foundation label under suite-wide release-recovery review**. This repo provides a FastAPI package aligned to the CivicCore v0.3.0 release wheel, health/root endpoints, documentation gates, deterministic sample repeat-case lookup, optional database-backed repeat-case and report-draft records via `CIVICINSPECT_CASE_DB_URL`, report draft helper, notice draft helper, records-ready export checklist, and accessible public sample UI at `/civicinspect`. It does **not** ship official findings, citations, fines, notices, inspection scheduling, legal advice, live photo analysis, live LLM calls, or system-of-record integrations. Do not promote it as production software until the recovery gates are complete.
+Current state: **published v1.0.0 label in active recovery/productization work**. This repo provides a FastAPI package aligned to the CivicCore v1.0.0 release wheel, health/root endpoints, documentation gates, deterministic and database-backed repeat-case lookup, persisted report-draft records, staff-only review queue workflows, review-required inspection context packets, adversarial local integration mocks, notice draft support, records-ready export checklists, and accessible public sample UI at `/civicinspect`.
 
 ## What CivicInspect Does
 
-- Looks up deterministic sample repeat-case context for a property.
-- Drafts inspection report outlines from inspector-provided notes and photo-observation text.
-- Drafts notice text for staff review without issuing any notice.
+- Looks up deterministic or configured repeat-case context for a property.
+- Drafts inspection report outlines from inspector-provided notes and observation text.
+- Persists report drafts and staff review queue records when `CIVICINSPECT_CASE_DB_URL` is configured.
+- Routes review work through staff-only queue endpoints protected by `CIVICINSPECT_STAFF_API_KEY`.
+- Carries CivicCode and inspection case context IDs into review-required inspection packets without calling those systems live.
+- Validates adversarial local integration mocks for spoofed roles, attempted findings, citations, fines, stale context, and live photo-analysis claims.
+- Drafts notice text for staff review without issuing notices.
 - Produces records-ready export checklists for inspection case files.
 - Demonstrates a public inspection-support UI at `/civicinspect`.
 
@@ -18,20 +22,26 @@ Current state: **published v0.1.1 foundation label under suite-wide release-reco
 - It does not perform live image recognition or photo analysis.
 - It does not schedule inspections or update an inspection system of record.
 - It does not provide legal advice.
-- It does not call live LLMs in v0.1.1.
+- It does not call live LLMs in v1.0.0.
 
 ## API Surface
 
 - `GET /` returns the shipped/planned boundary.
 - `GET /health` returns package and CivicCore versions.
 - `GET /civicinspect` returns the accessible public sample UI.
-- `POST /api/v1/civicinspect/cases/repeat-lookup` returns sample repeat-case context.
+- `POST /api/v1/civicinspect/cases/repeat-lookup` returns repeat-case context.
 - `POST /api/v1/civicinspect/reports/draft` returns an inspector-review-required report draft.
 - `GET /api/v1/civicinspect/reports/{report_id}` retrieves persisted report records when `CIVICINSPECT_CASE_DB_URL` is configured.
+- `POST /api/v1/civicinspect/context/inspection-review` returns review-required CivicCode/case context.
+- `POST /api/v1/civicinspect/integrations/mock/inspection-context` validates adversarial local integration mocks.
 - `POST /api/v1/civicinspect/notices/draft` returns a notice draft with required staff actions.
+- `POST /api/v1/civicinspect/staff/reviews` creates a staff-only review queue item.
+- `GET /api/v1/civicinspect/staff/reviews` lists staff-only review queue items.
+- `PATCH /api/v1/civicinspect/staff/reviews/{review_id}` updates staff-only review queue status, assignment, and resolution.
+- `GET /api/v1/civicinspect/staff/reviews/summary` returns staff queue counts.
 - `POST /api/v1/civicinspect/export` returns a records-ready inspection export checklist.
 
-Set `CIVICINSPECT_CASE_DB_URL` to enable persistent repeat-case and report-draft records. When unset, CivicInspect continues to use deterministic in-memory sample data.
+Set `CIVICINSPECT_CASE_DB_URL` to enable persistent repeat-case, report-draft, and staff review records. Persisted staff routes require `CIVICINSPECT_STAFF_API_KEY`, `X-CivicInspect-Role: staff` or `service`, and matching `X-CivicInspect-Staff-Key` from a trusted staff or service workflow.
 
 ## Local Development
 

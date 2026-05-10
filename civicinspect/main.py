@@ -1,16 +1,23 @@
 """FastAPI runtime foundation for CivicInspect."""
 
 import os
+from typing import Annotated
 
 from civiccore import __version__ as CIVICCORE_VERSION
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from civicinspect import __version__
 from civicinspect.case_lookup import lookup_repeat_cases
+from civicinspect.integration_mocks import validate_inspection_context_mocks
 from civicinspect.notice_draft import draft_notice
-from civicinspect.persistence import InspectionCaseRepository, StoredInspectionReport
+from civicinspect.persistence import (
+    InspectionCaseRepository,
+    StaffReviewQueueItem,
+    StaffReviewSummary,
+    StoredInspectionReport,
+)
 from civicinspect.public_ui import render_public_lookup_page
 from civicinspect.records_export import build_inspection_export
 from civicinspect.report_draft import draft_inspection_report
@@ -19,7 +26,7 @@ from civicinspect.report_draft import draft_inspection_report
 app = FastAPI(
     title="CivicInspect",
     version=__version__,
-    description="Inspection report, repeat-case, and notice-drafting support for CivicSuite.",
+    description="Inspection report, repeat-case, notice-drafting, and staff-review support for CivicSuite.",
 )
 
 _case_repository: InspectionCaseRepository | None = None
@@ -52,6 +59,40 @@ class InspectionExportRequest(BaseModel):
     format: str = "markdown"
 
 
+class InspectionContextRequest(BaseModel):
+    inspection_id: str
+    property_reference: str
+    violation_type: str
+    code_context_id: str = ""
+    case_context_id: str = ""
+    source_date_status: str = "current"
+
+
+class IntegrationMockRequest(BaseModel):
+    scenario: str = "inspection-context"
+    role: str = "staff"
+    code_context_id: str = ""
+    case_context_id: str = ""
+    official_finding: bool = False
+    citation_issued: bool = False
+    fine_amount: str | None = None
+    photo_analysis_source: str = "inspector_observation"
+    source_date_status: str = "current"
+
+
+class StaffReviewCreateRequest(BaseModel):
+    inspection_id: str
+    property_reference: str
+    reason: str
+    report_id: str | None = None
+
+
+class StaffReviewUpdateRequest(BaseModel):
+    status: str
+    assigned_to: str | None = None
+    resolution: str | None = None
+
+
 @app.get("/")
 def root() -> dict[str, str]:
     """Return current product state without overstating unshipped behavior."""
@@ -59,14 +100,16 @@ def root() -> dict[str, str]:
     return {
         "name": "CivicInspect",
         "version": __version__,
-        "status": "inspection support foundation plus case persistence",
+        "status": "inspection support product with staff review queues",
         "message": (
-            "CivicInspect package, API foundation, sample repeat-case lookup, optional database-backed repeat-case and report-draft records, inspector-owned "
-            "report draft helper, notice draft helper, records-ready export checklist, and public UI "
-            "foundation are online; official findings, citations, fines, inspection scheduling, live "
-            "photo analysis, live LLM calls, and system-of-record integrations are not implemented yet."
+            "CivicInspect package, API foundation, sample repeat-case lookup, optional database-backed "
+            "repeat-case and report-draft records, staff review queues, review-required CivicCode "
+            "context packets, adversarial local integration mocks, inspector-owned report draft "
+            "helper, notice draft helper, records-ready export checklist, and public UI are online; "
+            "official findings, citations, fines, inspection scheduling, live photo analysis, live "
+            "LLM calls, and system-of-record integrations are not implemented."
         ),
-        "next_step": "Post-v0.1.1 roadmap: local inspection configuration, CivicCode context APIs, and staff review queues",
+        "next_step": "Configure CIVICINSPECT_CASE_DB_URL and CIVICINSPECT_STAFF_API_KEY before using staff queues.",
     }
 
 
@@ -108,7 +151,14 @@ def inspection_report_draft(request: ReportDraftRequest) -> dict[str, object]:
             photo_observations=tuple(request.photo_observations),
             voice_notes=request.voice_notes,
         )
-        return _stored_report_response(stored)
+        staff_review = _get_case_repository().create_staff_review_queue_item(
+            report_id=stored.report_id,
+            inspection_id=stored.inspection_id,
+            property_reference=stored.property_reference,
+            reason="Inspection report draft requires staff review before any notice or enforcement action.",
+            created_by="staff",
+        )
+        return _stored_report_response(stored, staff_review=staff_review)
 
     result = draft_inspection_report(
         inspection_id=request.inspection_id,
@@ -119,6 +169,7 @@ def inspection_report_draft(request: ReportDraftRequest) -> dict[str, object]:
     )
     payload = result.__dict__
     payload["report_id"] = None
+    payload["staff_review_id"] = None
     return payload
 
 
@@ -155,6 +206,47 @@ def notice_draft(request: NoticeDraftRequest) -> dict[str, object]:
     return result.__dict__
 
 
+@app.post("/api/v1/civicinspect/context/inspection-review")
+def inspection_review_context(request: InspectionContextRequest) -> dict[str, object]:
+    repeat_context = _lookup_repeat_cases(
+        property_reference=request.property_reference,
+        violation_type=request.violation_type,
+    )
+    citations = [f"Repeat-case context: {case_id}" for case_id in repeat_context.related_case_ids]
+    if request.code_context_id:
+        citations.append(f"CivicCode context: {request.code_context_id}")
+    if request.case_context_id:
+        citations.append(f"Inspection case context: {request.case_context_id}")
+    return {
+        "inspection_id": request.inspection_id.strip() or "unassigned-inspection",
+        "property_reference": request.property_reference.strip() or "unknown property",
+        "violation_type": request.violation_type.strip() or "general inspection",
+        "code_context_id": request.code_context_id,
+        "case_context_id": request.case_context_id,
+        "source_date_status": request.source_date_status,
+        "citations": citations,
+        "repeat_case_count": repeat_context.repeat_case_count,
+        "review_required": True,
+        "boundary": (
+            "CivicInspect provides inspection review context only; it is not an official finding, "
+            "citation, fine, notice issuance, inspection schedule, photo-analysis result, or "
+            "system-of-record action."
+        ),
+    }
+
+
+@app.post("/api/v1/civicinspect/integrations/mock/inspection-context")
+def integration_mock_inspection_context(request: IntegrationMockRequest) -> dict[str, object]:
+    result = validate_inspection_context_mocks(request.model_dump())
+    return {
+        "scenario": result.scenario,
+        "status": result.status,
+        "review_required": result.review_required,
+        "findings": list(result.findings),
+        "boundary": result.boundary,
+    }
+
+
 @app.post("/api/v1/civicinspect/export")
 def inspection_export(request: InspectionExportRequest) -> dict[str, object]:
     result = build_inspection_export(
@@ -165,8 +257,89 @@ def inspection_export(request: InspectionExportRequest) -> dict[str, object]:
     return result.__dict__
 
 
+@app.post("/api/v1/civicinspect/staff/reviews")
+def create_staff_review(
+    request: StaffReviewCreateRequest,
+    x_civicinspect_role: Annotated[str | None, Header()] = None,
+    x_civicinspect_staff_key: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    _require_persistence_configured()
+    _require_staff_role(x_civicinspect_role, x_civicinspect_staff_key)
+    item = _get_case_repository().create_staff_review_queue_item(
+        inspection_id=request.inspection_id,
+        property_reference=request.property_reference,
+        reason=request.reason,
+        report_id=request.report_id,
+        created_by=x_civicinspect_role or "staff",
+    )
+    return _staff_review_payload(item)
+
+
+@app.get("/api/v1/civicinspect/staff/reviews")
+def list_staff_reviews(
+    status: str | None = None,
+    x_civicinspect_role: Annotated[str | None, Header()] = None,
+    x_civicinspect_staff_key: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    _require_persistence_configured()
+    _require_staff_role(x_civicinspect_role, x_civicinspect_staff_key)
+    return {
+        "visibility": "staff_only",
+        "items": [
+            _staff_review_payload(item)
+            for item in _get_case_repository().list_staff_review_queue_items(status=status)
+        ],
+    }
+
+
+@app.patch("/api/v1/civicinspect/staff/reviews/{review_id}")
+def update_staff_review(
+    review_id: str,
+    request: StaffReviewUpdateRequest,
+    x_civicinspect_role: Annotated[str | None, Header()] = None,
+    x_civicinspect_staff_key: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    _require_persistence_configured()
+    _require_staff_role(x_civicinspect_role, x_civicinspect_staff_key)
+    try:
+        item = _get_case_repository().update_staff_review_queue_item(
+            review_id=review_id,
+            status=request.status,
+            assigned_to=request.assigned_to,
+            resolution=request.resolution,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={"message": "Staff review update is invalid.", "fix": str(exc)},
+        ) from exc
+    if item is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "message": "CivicInspect staff review item was not found.",
+                "fix": "List staff reviews and retry with an existing review_id.",
+            },
+        )
+    return _staff_review_payload(item)
+
+
+@app.get("/api/v1/civicinspect/staff/reviews/summary")
+def staff_review_summary(
+    x_civicinspect_role: Annotated[str | None, Header()] = None,
+    x_civicinspect_staff_key: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    _require_persistence_configured()
+    _require_staff_role(x_civicinspect_role, x_civicinspect_staff_key)
+    return _staff_review_summary_payload(_get_case_repository().staff_review_summary())
+
+
 def _case_database_url() -> str | None:
     return os.environ.get("CIVICINSPECT_CASE_DB_URL")
+
+
+def _staff_api_key() -> str | None:
+    return os.environ.get("CIVICINSPECT_STAFF_API_KEY")
 
 
 def _get_case_repository() -> InspectionCaseRepository:
@@ -197,7 +370,9 @@ def _lookup_repeat_cases(*, property_reference: str, violation_type: str = ""):
     )
 
 
-def _stored_report_response(stored: StoredInspectionReport) -> dict[str, object]:
+def _stored_report_response(
+    stored: StoredInspectionReport, *, staff_review: StaffReviewQueueItem | None = None
+) -> dict[str, object]:
     return {
         "report_id": stored.report_id,
         "inspection_id": stored.inspection_id,
@@ -205,6 +380,77 @@ def _stored_report_response(stored: StoredInspectionReport) -> dict[str, object]
         "summary": stored.summary,
         "observation_bullets": list(stored.observation_bullets),
         "inspector_review_required": stored.inspector_review_required,
+        "staff_review_id": staff_review.review_id if staff_review is not None else None,
         "disclaimer": stored.disclaimer,
         "created_at": stored.created_at.isoformat(),
+    }
+
+
+def _require_persistence_configured() -> None:
+    if _case_database_url() is None:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "message": "CivicInspect staff review persistence is not configured.",
+                "fix": "Set CIVICINSPECT_CASE_DB_URL before using staff review queue routes.",
+            },
+        )
+
+
+def _require_staff_role(role: str | None, staff_key: str | None) -> None:
+    expected_key = _staff_api_key()
+    if expected_key is None:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "message": "CivicInspect staff API key is not configured.",
+                "fix": "Set CIVICINSPECT_STAFF_API_KEY before using staff-only routes.",
+            },
+        )
+    if role not in {"staff", "service"}:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "message": "Staff role required for this CivicInspect endpoint.",
+                "fix": "Send X-CivicInspect-Role: staff or service from a trusted workflow.",
+            },
+        )
+    if staff_key != expected_key:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "message": "Valid CivicInspect staff key required.",
+                "fix": "Send X-CivicInspect-Staff-Key with the configured staff API key.",
+            },
+        )
+
+
+def _staff_review_payload(item: StaffReviewQueueItem) -> dict[str, object]:
+    return {
+        "review_id": item.review_id,
+        "report_id": item.report_id,
+        "inspection_id": item.inspection_id,
+        "property_reference": item.property_reference,
+        "status": item.status,
+        "reason": item.reason,
+        "assigned_to": item.assigned_to,
+        "resolution": item.resolution,
+        "created_by": item.created_by,
+        "created_at": item.created_at.isoformat(),
+        "updated_at": item.updated_at.isoformat(),
+        "visibility": item.visibility,
+        "boundary": (
+            "Staff review queues support inspection triage only; they do not issue findings, "
+            "citations, fines, notices, schedules, or system-of-record updates."
+        ),
+    }
+
+
+def _staff_review_summary_payload(summary: StaffReviewSummary) -> dict[str, object]:
+    return {
+        "total_items": summary.total_items,
+        "by_status": summary.by_status,
+        "open_items": summary.open_items,
+        "generated_at": summary.generated_at.isoformat(),
+        "visibility": summary.visibility,
     }

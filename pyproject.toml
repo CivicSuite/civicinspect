@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "civicinspect"
-version = "0.1.1"
-description = "CivicInspect runtime foundation for inspection report, repeat-case, and notice-drafting support."
+version = "1.0.0"
+description = "CivicInspect inspection support product for report drafting, repeat-case lookup, notice drafting, and staff review queues."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
@@ -13,7 +13,7 @@ authors = [
   { name = "CivicSuite contributors" }
 ]
 dependencies = [
-  "civiccore @ https://github.com/CivicSuite/civiccore/releases/download/v0.3.0/civiccore-0.3.0-py3-none-any.whl",
+  "civiccore @ https://github.com/CivicSuite/civiccore/releases/download/v1.0/civiccore-1.0.0-py3-none-any.whl",
   "fastapi>=0.115.0,<1.0.0",
   "sqlalchemy>=2.0.0,<3.0.0",
   "uvicorn[standard]>=0.30.0,<1.0.0",

@@ -12,16 +12,16 @@ body{margin:0;font-family:"Aptos","Segoe UI",sans-serif;color:#17202a;background
 <header>
   <p class="eyebrow">CivicSuite / CivicInspect</p>
   <h1>Inspection drafts that keep inspectors in charge.</h1>
-  <p class="lede">CivicInspect v0.1.1 is a published foundation label under suite-wide release-recovery review. It provides repeat-case lookup, optional database-backed repeat-case and report-draft records via <code>CIVICINSPECT_CASE_DB_URL</code>, inspector-owned report drafts, notice draft support, records-ready exports, and an accessible sample UI.</p>
-  <p><span class="badge">v0.1.1 foundation under recovery review</span></p>
+  <p class="lede">CivicInspect v1.0.0 supports repeat-case lookup, optional database-backed repeat-case and report-draft records, staff review queues, review-required CivicCode context packets, adversarial local integration mocks, notice drafts, records-ready exports, and an accessible sample UI.</p>
+  <p><span class="badge">v1.0.0 inspection support + staff review queues</span></p>
 </header>
 <main>
   <section class="grid">
-    <article class="card"><h2>What is available</h2><ul><li>Sample repeat-case lookup.</li><li>Inspector-owned report draft helper.</li><li>Notice draft helper with staff actions.</li><li>Records-ready export checklist.</li><li>Public sample UI at <code>/civicinspect</code>.</li></ul></article>
+    <article class="card"><h2>What is available</h2><ul><li>Repeat-case lookup.</li><li>Inspector-owned report draft helper.</li><li>Notice draft helper with staff actions.</li><li>Staff-only review queues.</li><li>Records-ready export checklist.</li><li>Public sample UI at <code>/civicinspect</code>.</li></ul></article>
     <article class="card"><h2>What is not available</h2><p>CivicInspect does not issue official findings, citations, fines, notices, inspection scheduling, legal advice, live photo analysis, live LLM calls, or system-of-record integrations.</p></article>
-    <article class="card"><h2>Recovery status</h2><p><a href="release-recovery-status.md">Read the release-recovery evidence summary</a>.</p></article>
+    <article class="card"><h2>Integration boundary</h2><p>Review packets can carry CivicCode and inspection case context IDs. Adversarial local mocks reject spoofed roles, attempted enforcement actions, stale context, and live photo-analysis claims.</p></article>
     <article class="card"><h2>Repository</h2><p><a href="https://github.com/CivicSuite/civicinspect">github.com/CivicSuite/civicinspect</a></p></article>
-    <article class="card"><h2>Dependency</h2><p>Pinned to the CivicCore v0.3.0 release wheel. CivicCore remains dependency-only; it never imports from CivicInspect.</p></article>
+    <article class="card"><h2>Dependency</h2><p>Pinned to the CivicCore v1.0.0 release wheel. CivicCore remains dependency-only; it never imports from CivicInspect.</p></article>
   </section>
 </main>
 <footer><p>Apache 2.0 code. CC BY 4.0 docs. Run locally by the city.</p></footer>

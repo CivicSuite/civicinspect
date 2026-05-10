@@ -1,4 +1,4 @@
-"""Static public UI shell for CivicInspect v0.1.1."""
+"""Static public UI shell for CivicInspect v1.0.0."""
 
 from __future__ import annotations
 
@@ -46,8 +46,8 @@ def render_public_lookup_page() -> str:
 <header>
   <p class="eyebrow">CivicSuite / CivicInspect public sample</p>
   <h1>Turn field notes into review-ready inspection drafts.</h1>
-  <p class="lede">CivicInspect demonstrates inspection support: sample repeat-case lookup, inspector-owned report drafting, notice draft support, and records-ready exports without issuing findings or replacing the system of record.</p>
-  <p><span class="badge">v0.1.1 inspection support foundation</span></p>
+  <p class="lede">CivicInspect demonstrates inspection support: sample repeat-case lookup, inspector-owned report drafting, notice draft support, staff review queues, CivicCode context packets, and records-ready exports without issuing findings or replacing the system of record.</p>
+  <p><span class="badge">v1.0.0 inspection support + staff review queues</span></p>
 </header>
 <main id="main" tabindex="-1">
   <section class="grid" aria-labelledby="lookup-title">
@@ -63,7 +63,8 @@ def render_public_lookup_page() -> str:
     </article>
     <article class="card"><p class="kicker">Inspector-owned</p><h2>Humans decide</h2><div class="result"><p>Every draft is explicitly marked for inspector review; CivicInspect does not make findings, issue citations, or assess fines.</p></div></article>
     <article class="card"><p class="kicker">Notice support</p><h2>Draft, not issuance</h2><div class="result"><p>Notice drafts list required staff actions: confirm code section, ownership, address, and repeat-case context.</p></div></article>
-    <article class="card"><p class="kicker">Records-ready export</p><h2>Keep provenance</h2><div class="result"><p>Exports preserve notes, draft text, reviewer, review date, and system-of-record links.</p></div></article>
+    <article class="card"><p class="kicker">Staff queue</p><h2>Route review work</h2><div class="result"><p>Persisted draft reports can be routed to staff-only review queues with status, assignment, and resolution records.</p></div></article>
+    <article class="card"><p class="kicker">Records-ready export</p><h2>Keep provenance</h2><div class="result"><p>Exports preserve notes, draft text, reviewer, queue status, review date, and system-of-record links.</p></div></article>
     <article class="card large"><p class="kicker">Boundary</p><h2>No official inspection action</h2><div class="result warning"><p>CivicInspect does not issue official findings, citations, fines, notices, inspection schedules, or system-of-record updates.</p></div></article>
   </section>
 </main>

@@ -12,8 +12,8 @@ client = TestClient(app)
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_package_version_is_011() -> None:
-    assert civicinspect.__version__ == "0.1.1"
+def test_package_version_is_100() -> None:
+    assert civicinspect.__version__ == "1.0.0"
 
 
 def test_root_endpoint_states_runtime_boundary() -> None:
@@ -22,12 +22,13 @@ def test_root_endpoint_states_runtime_boundary() -> None:
     payload = response.json()
 
     assert payload["name"] == "CivicInspect"
-    assert payload["version"] == "0.1.1"
-    assert payload["status"] == "inspection support foundation plus case persistence"
-    assert "database-backed repeat-case and report-draft records" in payload["message"]
+    assert payload["version"] == "1.0.0"
+    assert payload["status"] == "inspection support product with staff review queues"
+    assert "staff review queues" in payload["message"]
+    assert "CivicCode context packets" in payload["message"]
     assert "official findings" in payload["message"]
-    assert "not implemented yet" in payload["message"]
-    assert payload["next_step"].startswith("Post-v0.1.1 roadmap")
+    assert "not implemented" in payload["message"]
+    assert "CIVICINSPECT_STAFF_API_KEY" in payload["next_step"]
 
 
 def test_health_endpoint_reports_versions() -> None:
@@ -37,18 +38,14 @@ def test_health_endpoint_reports_versions() -> None:
 
     assert payload["status"] == "ok"
     assert payload["service"] == "civicinspect"
-    assert payload["version"] == "0.1.1"
+    assert payload["version"] == "1.0.0"
     assert re.fullmatch(r"\d+\.\d+\.\d+", payload["civiccore_version"])
 
 
 def test_release_script_prefers_python3_before_python_for_wsl_native_proof() -> None:
     lines = (ROOT / "scripts" / "verify-release.sh").read_text(encoding="utf-8").splitlines()
     python3_line = next(index for index, line in enumerate(lines) if "command -v python3" in line)
-    python_line = next(
-        index
-        for index, line in enumerate(lines)
-        if "command -v python >/dev/null" in line
-    )
+    python_line = next(index for index, line in enumerate(lines) if "command -v python >/dev/null" in line)
 
     assert python3_line < python_line
 
@@ -59,32 +56,31 @@ def test_pyproject_uses_published_civiccore_release_wheel() -> None:
     dependencies = pyproject["project"]["dependencies"]
     assert any(
         dependency
-        == "civiccore @ https://github.com/CivicSuite/civiccore/releases/download/v0.3.0/civiccore-0.3.0-py3-none-any.whl"
+        == "civiccore @ https://github.com/CivicSuite/civiccore/releases/download/v1.0/civiccore-1.0.0-py3-none-any.whl"
         for dependency in dependencies
     )
     assert pyproject["tool"]["hatch"]["metadata"]["allow-direct-references"] is True
 
 
-def test_docs_gate_rejects_stale_product_ready_and_mojibake_markers() -> None:
+def test_docs_gate_rejects_stale_markers() -> None:
     text = (ROOT / "scripts" / "verify-docs.sh").read_text(encoding="utf-8")
 
     assert '"Shipping v0.1.1"' in text
-    assert '"product-ready"' in text
     assert '"production-ready"' in text
-    assert '"â"' in text
+    assert '"official findings are available"' in text
 
 
-def test_docs_index_marks_foundation_label_provisional_without_mojibake() -> None:
+def test_docs_index_marks_v1_label_without_mojibake() -> None:
     text = (ROOT / "docs" / "index.html").read_text(encoding="utf-8")
 
-    assert "published foundation label under suite-wide release-recovery review" in text
-    assert "v0.1.1 foundation under recovery review" in text
-    assert "release-recovery-status.md" in text
-    assert "â" not in text
+    assert "v1.0.0 inspection support + staff review queues" in text
+    assert "staff review queues" in text
+    assert "official findings" in text
+    assert "Ã" not in text
 
 
-def test_recovery_status_blocks_product_promotion() -> None:
+def test_recovery_status_records_v1_scope() -> None:
     text = (ROOT / "docs" / "release-recovery-status.md").read_text(encoding="utf-8")
 
-    assert "not product-ready" in text
-    assert "must not be promoted as production municipal inspection software" in text
+    assert "v1.0.0" in text
+    assert "staff review queues" in text

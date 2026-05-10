@@ -22,6 +22,9 @@ required=(
   "docs/RECONCILIATION.md"
   "docs/MILESTONES.md"
   "docs/IMPLEMENTATION_PLAN.md"
+  "docs/careful-work-civicinspect-v1.0.0.md"
+  "docs/release-gate-audit-civicinspect-v1.0.0.md"
+  "docs/browser-qa-civicinspect-v1.0.0-summary.md"
   "docs/github-discussions-seed.md"
   "MILESTONE_0_7_DONE.md"
   "docs/index.html"
@@ -29,6 +32,7 @@ required=(
   "civicinspect/__init__.py"
   "civicinspect/main.py"
   "civicinspect/case_lookup.py"
+  "civicinspect/integration_mocks.py"
   "civicinspect/report_draft.py"
   "civicinspect/notice_draft.py"
   "civicinspect/records_export.py"
@@ -59,6 +63,7 @@ bad_markers=(
   "inspection scheduling is available"
   "system-of-record integrations are available"
   "production staff-review queues are available"
+  "v0.1.1 foundation under recovery review"
 )
 
 for file in "${current_files[@]}"; do
