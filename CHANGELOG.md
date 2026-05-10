@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- feat(deps): bump civiccore pin to v1.0.1 (security hardening recovery patch)
+
 ### Added
 
 - CivicInspect v0.2.0 product lane: staff review queues, review-required CivicCode/case context packets, adversarial local integration mocks, and current-facing v1 docs.
