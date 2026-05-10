@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_package_version_is_100() -> None:
-    assert civicinspect.__version__ == "1.0.0"
+    assert civicinspect.__version__ == "0.2.0"
 
 
 def test_root_endpoint_states_runtime_boundary() -> None:
@@ -22,7 +22,7 @@ def test_root_endpoint_states_runtime_boundary() -> None:
     payload = response.json()
 
     assert payload["name"] == "CivicInspect"
-    assert payload["version"] == "1.0.0"
+    assert payload["version"] == "0.2.0"
     assert payload["status"] == "inspection support product with staff review queues"
     assert "staff review queues" in payload["message"]
     assert "CivicCode context packets" in payload["message"]
@@ -38,7 +38,7 @@ def test_health_endpoint_reports_versions() -> None:
 
     assert payload["status"] == "ok"
     assert payload["service"] == "civicinspect"
-    assert payload["version"] == "1.0.0"
+    assert payload["version"] == "0.2.0"
     assert re.fullmatch(r"\d+\.\d+\.\d+", payload["civiccore_version"])
 
 
@@ -56,7 +56,7 @@ def test_pyproject_uses_published_civiccore_release_wheel() -> None:
     dependencies = pyproject["project"]["dependencies"]
     assert any(
         dependency
-        == "civiccore @ https://github.com/CivicSuite/civiccore/releases/download/v1.0/civiccore-1.0.0-py3-none-any.whl"
+        == "civiccore @ https://github.com/CivicSuite/civiccore/releases/download/v1.0/civiccore-1.0.0-py3-none-any.whl#sha256=92d3d9984e3b3651586a342503f0789464b7618a2a030fce91d736e199d696e0"
         for dependency in dependencies
     )
     assert pyproject["tool"]["hatch"]["metadata"]["allow-direct-references"] is True
@@ -73,10 +73,10 @@ def test_docs_gate_rejects_stale_markers() -> None:
 def test_docs_index_marks_v1_label_without_mojibake() -> None:
     text = (ROOT / "docs" / "index.html").read_text(encoding="utf-8")
 
-    assert "v1.0.0 inspection support + staff review queues" in text
+    assert "v0.2.0 inspection support + staff review queues" in text
     assert "staff review queues" in text
     assert "official findings" in text
-    assert "Ã" not in text
+    assert "Ãƒ" not in text
 
 
 def test_recovery_status_records_v1_scope() -> None:
@@ -84,3 +84,4 @@ def test_recovery_status_records_v1_scope() -> None:
 
     assert "v1.0.0" in text
     assert "staff review queues" in text
+

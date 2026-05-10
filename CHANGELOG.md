@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0] - 2026-05-10
+
+- Demoted the false v1.0.0 release label after the external CivicSuite audit found this module is a recovery/foundation module, not a canonical spec-complete v1 product.
+- Preserved the useful recovery work while resetting the public package version to 0.2.0.
+- Kept the CivicCore v1.0.0 wheel dependency and pinned it with SHA256 for release integrity.
+- Supersedes the prior public v1.0.0 posture; do not treat v1.0.0 as production-ready or spec-complete.
+
 All notable changes to CivicInspect will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
@@ -8,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- CivicInspect v1.0.0 product lane: staff review queues, review-required CivicCode/case context packets, adversarial local integration mocks, and current-facing v1 docs.
+- CivicInspect v0.2.0 product lane: staff review queues, review-required CivicCode/case context packets, adversarial local integration mocks, and current-facing v1 docs.
 - Production-depth case persistence slice with `CIVICINSPECT_CASE_DB_URL`, persisted repeat-case records, persisted report-draft records, and retrieval by `report_id`.
 - Suite-wide release-recovery status, WSL-native release-gate proof, browser QA evidence, and regression checks that keep the published v0.1.1 label provisional.
 

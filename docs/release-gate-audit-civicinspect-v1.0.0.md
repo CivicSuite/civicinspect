@@ -1,4 +1,4 @@
-# CivicInspect v1.0.0 Release-Gate Audit
+# CivicInspect v0.2.0 Release-Gate Audit
 
 Date: 2026-05-09
 
@@ -24,7 +24,7 @@ No Blocker or Critical findings remain in the local release-gate scope. Remote P
 
 ## Product Boundary
 
-CivicInspect v1.0.0 does not issue official findings, citations, fines, notices, inspection schedules, legal advice, live photo analysis, live LLM calls, or system-of-record updates.
+CivicInspect v0.2.0 does not issue official findings, citations, fines, notices, inspection schedules, legal advice, live photo analysis, live LLM calls, or system-of-record updates.
 
 ## Residual Risk
 

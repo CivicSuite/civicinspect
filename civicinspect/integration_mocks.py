@@ -47,6 +47,6 @@ def validate_inspection_context_mocks(payload: dict[str, Any]) -> IntegrationMoc
         boundary=(
             "CivicInspect validates local integration context only; it does not call live "
             "CivicCode, inspection scheduling, photo-analysis, LLM, or system-of-record "
-            "services in v1.0.0."
+            "services in this recovery release."
         ),
     )

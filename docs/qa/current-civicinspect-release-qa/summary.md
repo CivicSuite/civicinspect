@@ -1,4 +1,4 @@
-# CivicInspect v1.0.0 Browser QA
+# CivicInspect v0.2.0 Browser QA
 
 Run date: 2026-05-09
 

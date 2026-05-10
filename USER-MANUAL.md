@@ -2,7 +2,7 @@
 
 CivicInspect helps inspection staff turn field notes into review-ready inspection drafts while preserving staff control over every decision.
 
-Current state: published `1.0.0` label in active recovery/productization work. The module includes deterministic sample checks, optional database-backed repeat-case and report-draft records, staff review queue workflows, review-required CivicCode/case context packet support, adversarial local integration mocks, CivicCore v1.0.0 release-wheel alignment, and a public sample UI at `/civicinspect`.
+Current state: published 0.2.0 recovery label in active recovery/productization work. The module includes deterministic sample checks, optional database-backed repeat-case and report-draft records, staff review queue workflows, review-required CivicCode/case context packet support, adversarial local integration mocks, CivicCore v1.0.0 release-wheel alignment, and a public sample UI at `/civicinspect`.
 
 ## Runtime Surface
 
@@ -35,10 +35,10 @@ CivicInspect does not issue official findings, citations, fines, notices, inspec
 
 ```mermaid
 flowchart LR
-  Staff["Inspector or staff reviewer"] --> CivicInspect["CivicInspect v1.0.0"]
+  Staff["Inspector or staff reviewer"] --> CivicInspect["CivicInspect v0.2.0"]
   CivicInspect --> CivicCore["CivicCore v1.0.0"]
   CivicInspect -. released context ID .-> CivicCode["CivicCode v1.0.0"]
   CivicInspect --> DB["Optional case database"]
 ```
 
-CivicInspect depends on CivicCore. CivicCore does not depend on CivicInspect. CivicInspect v1.0.0 uses deterministic sample data plus optional staff-gated persistence, review-required context packets for released CivicCode references, staff review queue records, and adversarial local mocks for integration-depth validation.
+CivicInspect depends on CivicCore. CivicCore does not depend on CivicInspect. CivicInspect v0.2.0 uses deterministic sample data plus optional staff-gated persistence, review-required context packets for released CivicCode references, staff review queue records, and adversarial local mocks for integration-depth validation.

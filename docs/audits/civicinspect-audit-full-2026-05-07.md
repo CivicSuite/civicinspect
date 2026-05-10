@@ -10,7 +10,7 @@ Local commit audited before fixes: `93f70d4b5e0d1944af863a03bf269422dae13fc8`
 Static audit confidence: High for release-script, docs, dependency, and test surfaces inspected locally.
 Runtime sign-off confidence: High for this release-recovery scope after WSL release verification and browser QA passed.
 
-CivicInspect does not currently overclaim a v1.0.0 product release, but it had release-recovery gaps that weaken trust: fresh installs depended on an implicit CivicCore preinstall, WSL verification could pick Windows Python before Linux Python, and browser docs contained a mojibake title plus an overly promotional shipping badge.
+CivicInspect does not currently overclaim a v0.2.0 recovery release, but it had release-recovery gaps that weaken trust: fresh installs depended on an implicit CivicCore preinstall, WSL verification could pick Windows Python before Linux Python, and browser docs contained a mojibake title plus an overly promotional shipping badge.
 
 ## 2. Audit Coverage Ledger
 
@@ -46,7 +46,7 @@ CivicInspect does not currently overclaim a v1.0.0 product release, but it had r
 
 ## 5. Next-Sprint Watchlist
 
-- Full CivicInspect v1.0.0 scope remains a future active-module sprint, not part of this recovery patch.
+- Full CivicInspect v0.2.0 scope remains a future active-module sprint, not part of this recovery patch.
 - Any future product-ready claim must require Playwright user-flow tests, runtime install proof, consistency gates, docs-source enforcement, and security scans.
 
 ## 6. Engineering Deep Dive
