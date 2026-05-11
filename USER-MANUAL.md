@@ -22,7 +22,7 @@ CivicInspect is a FastAPI Python package pinned to the published `civiccore v1.0
 
 Set `CIVICINSPECT_CASE_DB_URL` to persist repeat-case, report-draft, and staff queue records. Set `CIVICINSPECT_STAFF_API_KEY` before using staff-only queue routes. Staff routes require:
 
-- `X-CivicInspect-Role: staff` or `service`
+- `X-CivicInspect-Role: staff`
 - `X-CivicInspect-Staff-Key: <configured key>`
 
 This local API-key gate is a release safeguard, not a replacement for production identity, tenant scoping, and audit logging.
