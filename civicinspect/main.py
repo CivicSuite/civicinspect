@@ -1,10 +1,10 @@
 """FastAPI runtime foundation for CivicInspect."""
 
 import os
-from typing import Annotated
 
 from civiccore import __version__ as CIVICCORE_VERSION
-from fastapi import FastAPI, Header, HTTPException
+from civiccore.auth import staff_key_gate
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
@@ -31,6 +31,7 @@ app = FastAPI(
 
 _case_repository: InspectionCaseRepository | None = None
 _case_db_url: str | None = None
+_require_staff_key = staff_key_gate("CIVICINSPECT_STAFF_API_KEY", "X-CivicInspect-Staff-Key")
 
 
 class RepeatCaseLookupRequest(BaseModel):
@@ -260,17 +261,15 @@ def inspection_export(request: InspectionExportRequest) -> dict[str, object]:
 @app.post("/api/v1/civicinspect/staff/reviews")
 def create_staff_review(
     request: StaffReviewCreateRequest,
-    x_civicinspect_role: Annotated[str | None, Header()] = None,
-    x_civicinspect_staff_key: Annotated[str | None, Header()] = None,
+    _staff_principal: object = Depends(_require_staff_key),
 ) -> dict[str, object]:
     _require_persistence_configured()
-    _require_staff_role(x_civicinspect_role, x_civicinspect_staff_key)
     item = _get_case_repository().create_staff_review_queue_item(
         inspection_id=request.inspection_id,
         property_reference=request.property_reference,
         reason=request.reason,
         report_id=request.report_id,
-        created_by=x_civicinspect_role or "staff",
+        created_by="staff",
     )
     return _staff_review_payload(item)
 
@@ -278,11 +277,9 @@ def create_staff_review(
 @app.get("/api/v1/civicinspect/staff/reviews")
 def list_staff_reviews(
     status: str | None = None,
-    x_civicinspect_role: Annotated[str | None, Header()] = None,
-    x_civicinspect_staff_key: Annotated[str | None, Header()] = None,
+    _staff_principal: object = Depends(_require_staff_key),
 ) -> dict[str, object]:
     _require_persistence_configured()
-    _require_staff_role(x_civicinspect_role, x_civicinspect_staff_key)
     return {
         "visibility": "staff_only",
         "items": [
@@ -296,11 +293,9 @@ def list_staff_reviews(
 def update_staff_review(
     review_id: str,
     request: StaffReviewUpdateRequest,
-    x_civicinspect_role: Annotated[str | None, Header()] = None,
-    x_civicinspect_staff_key: Annotated[str | None, Header()] = None,
+    _staff_principal: object = Depends(_require_staff_key),
 ) -> dict[str, object]:
     _require_persistence_configured()
-    _require_staff_role(x_civicinspect_role, x_civicinspect_staff_key)
     try:
         item = _get_case_repository().update_staff_review_queue_item(
             review_id=review_id,
@@ -326,20 +321,14 @@ def update_staff_review(
 
 @app.get("/api/v1/civicinspect/staff/reviews/summary")
 def staff_review_summary(
-    x_civicinspect_role: Annotated[str | None, Header()] = None,
-    x_civicinspect_staff_key: Annotated[str | None, Header()] = None,
+    _staff_principal: object = Depends(_require_staff_key),
 ) -> dict[str, object]:
     _require_persistence_configured()
-    _require_staff_role(x_civicinspect_role, x_civicinspect_staff_key)
     return _staff_review_summary_payload(_get_case_repository().staff_review_summary())
 
 
 def _case_database_url() -> str | None:
     return os.environ.get("CIVICINSPECT_CASE_DB_URL")
-
-
-def _staff_api_key() -> str | None:
-    return os.environ.get("CIVICINSPECT_STAFF_API_KEY")
 
 
 def _get_case_repository() -> InspectionCaseRepository:
@@ -393,34 +382,6 @@ def _require_persistence_configured() -> None:
             detail={
                 "message": "CivicInspect staff review persistence is not configured.",
                 "fix": "Set CIVICINSPECT_CASE_DB_URL before using staff review queue routes.",
-            },
-        )
-
-
-def _require_staff_role(role: str | None, staff_key: str | None) -> None:
-    expected_key = _staff_api_key()
-    if expected_key is None:
-        raise HTTPException(
-            status_code=503,
-            detail={
-                "message": "CivicInspect staff API key is not configured.",
-                "fix": "Set CIVICINSPECT_STAFF_API_KEY before using staff-only routes.",
-            },
-        )
-    if role not in {"staff", "service"}:
-        raise HTTPException(
-            status_code=403,
-            detail={
-                "message": "Staff role required for this CivicInspect endpoint.",
-                "fix": "Send X-CivicInspect-Role: staff or service from a trusted workflow.",
-            },
-        )
-    if staff_key != expected_key:
-        raise HTTPException(
-            status_code=403,
-            detail={
-                "message": "Valid CivicInspect staff key required.",
-                "fix": "Send X-CivicInspect-Staff-Key with the configured staff API key.",
             },
         )
 

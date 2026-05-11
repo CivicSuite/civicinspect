@@ -41,7 +41,7 @@ Current state: **published v0.2.0 recovery label in active recovery/productizati
 - `GET /api/v1/civicinspect/staff/reviews/summary` returns staff queue counts.
 - `POST /api/v1/civicinspect/export` returns a records-ready inspection export checklist.
 
-Set `CIVICINSPECT_CASE_DB_URL` to enable persistent repeat-case, report-draft, and staff review records. Persisted staff routes require `CIVICINSPECT_STAFF_API_KEY`, `X-CivicInspect-Role: staff` or `service`, and matching `X-CivicInspect-Staff-Key` from a trusted staff or service workflow.
+Set `CIVICINSPECT_CASE_DB_URL` to enable persistent repeat-case, report-draft, and staff review records. Persisted staff routes require `CIVICINSPECT_STAFF_API_KEY`, `X-CivicInspect-Role: staff`, and matching `X-CivicInspect-Staff-Key` from a trusted staff workflow. The shared CivicCore `staff_key_gate` validates the key with timing-safe comparison.
 
 ## Local Development
 
