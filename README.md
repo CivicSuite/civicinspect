@@ -2,7 +2,7 @@
 
 CivicInspect is the CivicSuite module for inspection support: repeat-case lookup, inspector-owned report drafting, notice draft support, staff review queues, review-required CivicCode context packets, adversarial local integration mocks, and records-ready inspection exports.
 
-Current state: **CivicInspect v1.0.0 public-use module release candidate for the active release run**. This repo provides a FastAPI package aligned to the CivicCore v1.1.0 release wheel, health/root endpoints, documentation gates, deterministic and database-backed repeat-case lookup, persisted report-draft records, staff-only review queue workflows, review-required inspection context packets, adversarial local integration mocks, notice draft support, records-ready export checklists, and accessible public sample UI at `/civicinspect`.
+Current state: **v0.2.1 corrective demotion state - deterministic scaffold; no real AI layer, full frontend, Alembic migrations, real municipal data/search, or public-use gate. The previous v1.0.0 release was published in error and is superseded by this honest sub-1.0.0 label.**. This repo provides a FastAPI package aligned to the CivicCore v1.1.0 release wheel, health/root endpoints, documentation gates, deterministic and database-backed repeat-case lookup, persisted report-draft records, staff-only review queue workflows, review-required inspection context packets, adversarial local integration mocks, notice draft support, records-ready export checklists, and accessible public sample UI at `/civicinspect`.
 
 ## What CivicInspect Does
 
