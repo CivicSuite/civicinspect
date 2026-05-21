@@ -1,4 +1,4 @@
-"""Deterministic repeat-case lookup helpers for CivicInspect v0.1.1."""
+"""Deterministic repeat-case lookup helpers for CivicInspect v1.0.0."""
 
 from __future__ import annotations
 
