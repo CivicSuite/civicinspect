@@ -5,15 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CivicInspect - inspection support for CivicSuite</title>
 <style>
-body{margin:0;font-family:"Aptos","Segoe UI",sans-serif;color:#17202a;background:linear-gradient(135deg,#fff7e8,#e7f4f5)}main,header,footer{width:min(1080px,calc(100% - 32px));margin:auto}header{padding:56px 0 24px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;color:#174f68;font-weight:800}h1{font:700 clamp(2.5rem,7vw,5.5rem)/.95 Georgia,serif;margin:.1em 0}.lede{font-size:1.25rem;line-height:1.6;max-width:820px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.card{background:rgba(255,255,255,.88);border:1px solid #dac7a4;border-radius:24px;padding:24px;box-shadow:0 18px 36px #26323b18}.badge{display:inline-block;background:#27604b;color:white;padding:.5rem .8rem;border-radius:999px;font-weight:900}a{color:#174f68}:focus-visible{outline:4px solid #d8ad48;outline-offset:3px}@media(max-width:720px){.grid{grid-template-columns:1fr}header{padding-top:34px}}
+body{margin:0;font-family:"Aptos","Segoe UI",sans-serif;color:#17202a;background:linear-gradient(135deg,#fff7e8,#e7f4f5)}
+main,header,footer{width:min(1080px,calc(100% - 32px));margin:auto}
+header{padding:56px 0 24px}
+.eyebrow{text-transform:uppercase;color:#174f68;font-weight:800}
+h1{font:700 4.5rem/1 Georgia,serif;margin:.1em 0}
+.lede{font-size:1.25rem;line-height:1.6;max-width:820px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.card{background:rgba(255,255,255,.88);border:1px solid #dac7a4;border-radius:8px;padding:24px;box-shadow:0 18px 36px #26323b18}
+.badge{display:inline-block;background:#27604b;color:white;padding:.5rem .8rem;border-radius:8px;font-weight:900}
+a{color:#174f68}
+:focus-visible{outline:4px solid #d8ad48;outline-offset:3px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}header{padding-top:34px}h1{font-size:2.7rem}}
 </style>
 </head>
 <body>
 <header>
   <p class="eyebrow">CivicSuite / CivicInspect</p>
   <h1>Inspection drafts that keep inspectors in charge.</h1>
-  <p class="lede">CivicInspect v0.2.0 supports repeat-case lookup, optional database-backed repeat-case and report-draft records, staff review queues, review-required CivicCode context packets, adversarial local integration mocks, notice drafts, records-ready exports, and an accessible sample UI.</p>
-  <p><span class="badge">v0.2.0 inspection support + staff review queues</span></p>
+  <p class="lede">CivicInspect v1.0.0 supports repeat-case lookup, optional database-backed repeat-case and report-draft records, staff review queues, review-required CivicCode context packets, adversarial local integration mocks, notice drafts, records-ready exports, and an accessible sample UI.</p>
+  <p><span class="badge">v1.0.0 inspection support + staff review queues</span></p>
 </header>
 <main>
   <section class="grid">
@@ -21,7 +32,7 @@ body{margin:0;font-family:"Aptos","Segoe UI",sans-serif;color:#17202a;background
     <article class="card"><h2>What is not available</h2><p>CivicInspect does not issue official findings, citations, fines, notices, inspection scheduling, legal advice, live photo analysis, live LLM calls, or system-of-record integrations.</p></article>
     <article class="card"><h2>Integration boundary</h2><p>Review packets can carry CivicCode and inspection case context IDs. Adversarial local mocks reject spoofed roles, attempted enforcement actions, stale context, and live photo-analysis claims.</p></article>
     <article class="card"><h2>Repository</h2><p><a href="https://github.com/CivicSuite/civicinspect">github.com/CivicSuite/civicinspect</a></p></article>
-    <article class="card"><h2>Dependency</h2><p>Pinned to the CivicCore v1.0.0 release wheel. CivicCore remains dependency-only; it never imports from CivicInspect.</p></article>
+    <article class="card"><h2>Dependency</h2><p>Pinned to the CivicCore v1.1.0 release wheel. CivicCore remains dependency-only; it never imports from CivicInspect.</p></article>
   </section>
 </main>
 <footer><p>Apache 2.0 code. CC BY 4.0 docs. Run locally by the city.</p></footer>

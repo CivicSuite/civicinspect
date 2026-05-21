@@ -1,51 +1,50 @@
-# CivicInspect v0.2.0 Browser QA
+# CivicInspect v1.0.0 Browser QA
 
-Run date: 2026-05-09
+Date: 2026-05-21
 
-## public-desktop
-- URL: `http://127.0.0.1:18181/civicinspect`
-- Viewport: `1440x1000`
-- Screenshot: `docs\qa\current-civicinspect-release-qa\public-desktop.png`
-- Console messages: `0`
-- Page errors: `0`
-- Horizontal overflow: `False`
-- Version visible: `True`
-- Staff review copy visible: `True`
-- Boundary copy visible: `True`
-- Result: `PASS`
+Local target: http://127.0.0.1:8015 plus packaged docs/index.html file render
+
+## public-desktop-states
+- Path: `/civicinspect`
+- HTTP/file status: 200
+- Console messages: 0
+- Page errors: 0
+- Horizontal overflow: False
+- Keyboard/focus: first Tab target `a skip-link Skip to main content`
+- Version visible: True
+- Boundary copy visible: True
+- Loading state observed: True
+- Success state: `Draft ready for staff review`
+- Empty state: `No repeat cases found`
+- Error state: `More detail is needed`
+- Partial/degraded state: `Staff refresh required`
 
 ## public-mobile
-- URL: `http://127.0.0.1:18181/civicinspect`
-- Viewport: `390x844`
-- Screenshot: `docs\qa\current-civicinspect-release-qa\public-mobile.png`
-- Console messages: `0`
-- Page errors: `0`
-- Horizontal overflow: `False`
-- Version visible: `True`
-- Staff review copy visible: `True`
-- Boundary copy visible: `True`
-- Result: `PASS`
+- Path: `/civicinspect`
+- HTTP/file status: 200
+- Console messages: 0
+- Page errors: 0
+- Horizontal overflow: False
+- Keyboard/focus: first Tab target `a skip-link Skip to main content`
+- Version visible: True
+- Boundary copy visible: True
 
 ## docs-desktop
-- URL: `file:///C:/Users/scott/OneDrive/Desktop/Claude/CivicInspect/docs/index.html`
-- Viewport: `1440x1000`
-- Screenshot: `docs\qa\current-civicinspect-release-qa\docs-desktop.png`
-- Console messages: `0`
-- Page errors: `0`
-- Horizontal overflow: `False`
-- Version visible: `True`
-- Staff review copy visible: `True`
-- Boundary copy visible: `True`
-- Result: `PASS`
+- Path: `file://docs/index.html`
+- HTTP/file status: 200
+- Console messages: 0
+- Page errors: 0
+- Horizontal overflow: False
+- Keyboard/focus: first Tab target `a  github.com/CivicSuite/civicinspect`
+- Version visible: True
+- Boundary copy visible: True
 
 ## docs-mobile
-- URL: `file:///C:/Users/scott/OneDrive/Desktop/Claude/CivicInspect/docs/index.html`
-- Viewport: `390x844`
-- Screenshot: `docs\qa\current-civicinspect-release-qa\docs-mobile.png`
-- Console messages: `0`
-- Page errors: `0`
-- Horizontal overflow: `False`
-- Version visible: `True`
-- Staff review copy visible: `True`
-- Boundary copy visible: `True`
-- Result: `PASS`
+- Path: `file://docs/index.html`
+- HTTP/file status: 200
+- Console messages: 0
+- Page errors: 0
+- Horizontal overflow: False
+- Keyboard/focus: first Tab target `a  github.com/CivicSuite/civicinspect`
+- Version visible: True
+- Boundary copy visible: True

@@ -1,40 +1,41 @@
 # Changelog
 
-## [0.2.0] - 2026-05-11
-
-### Changed
-
-- feat(deps): bump civiccore pin to v1.1.0 and use shared `staff_key_gate` for timing-safe staff review queue auth.
-
-## [0.2.0] - 2026-05-10
-
-- Demoted the false v1.0.0 release label after the external CivicSuite audit found this module is a recovery/foundation module, not a canonical spec-complete v1 product.
-- Preserved the useful recovery work while resetting the public package version to 0.2.0.
-- Kept the CivicCore v1.0.0 wheel dependency and pinned it with SHA256 for release integrity.
-- Supersedes the prior public v1.0.0 posture; do not treat v1.0.0 as production-ready or spec-complete.
-
 All notable changes to CivicInspect will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
-
-### Changed
-
-- feat(deps): bump civiccore pin to v1.0.1 (security hardening recovery patch)
+## [1.0.0] - 2026-05-21
 
 ### Added
 
-- CivicInspect v0.2.0 product lane: staff review queues, review-required CivicCode/case context packets, adversarial local integration mocks, and current-facing v1 docs.
-- Production-depth case persistence slice with `CIVICINSPECT_CASE_DB_URL`, persisted repeat-case records, persisted report-draft records, and retrieval by `report_id`.
-- Suite-wide release-recovery status, WSL-native release-gate proof, browser QA evidence, and regression checks that keep the published v0.1.1 label provisional.
+- CivicInspect v1.0.0 public-use module release truth for inspection support.
+- Current browser QA evidence for `/civicinspect`, `/docs/index.html`, loading, success, empty, error, and partial/degraded UI states.
+- Agent Pipeline for Codex v0.9.0 policy scaffold for this release run.
+- Current release plan evidence tied to the active CivicInspect scope lock.
 
 ### Changed
 
-- Updated package version and current-facing release gate to `1.0.0`.
-- Aligned CivicInspect with the published CivicCore v1.0.0 release wheel.
-- Replaced the unresolved `civiccore==0.3.0` package dependency with the published CivicCore v0.3.0 release wheel so fresh installs do not rely on a hidden CI preinstall step.
-- Updated release verification to prefer `python3` before `python` so WSL runs use native Linux Python when available.
+- Promoted package, runtime, docs, tests, and release verifier version truth from the demoted `0.2.0` recovery label to `1.0.0`.
+- Kept the CivicCore v1.1.0 release-wheel dependency and shared timing-safe staff-key gate.
+- Refreshed public UI copy, focus behavior, responsive layout, and actionable client-side state messages.
+
+### Boundaries
+
+- CivicInspect does not issue official findings, citations, fines, notices, inspection schedules, legal advice, live photo analysis, live LLM calls, or system-of-record updates.
+- The earlier `v1.0.0` tag/release posture was superseded by `v0.2.0` recovery truth; this entry is the new active release pass and must be judged by the current run evidence.
+
+## [0.2.0] - 2026-05-11
+
+### Changed
+
+- Bumped CivicCore pin to v1.1.0 and used shared `staff_key_gate` for timing-safe staff review queue auth.
+
+## [0.2.0] - 2026-05-10
+
+- Demoted the false v1.0.0 release label after the external CivicSuite audit found this module was a recovery/foundation module, not a canonical spec-complete v1 product at that time.
+- Preserved the useful recovery work while resetting the public package version to 0.2.0.
+- Kept the CivicCore v1.0.0 wheel dependency and pinned it with SHA256 for release integrity.
+- Superseded the prior public v1.0.0 posture; do not treat that historical tag as production-ready or spec-complete.
 
 ## [0.1.1] - 2026-04-28
 

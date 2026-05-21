@@ -1,19 +1,19 @@
-# CivicInspect v0.2.0 Careful-Work Evidence
+# CivicInspect v1.0.0 Careful-Work Evidence
 
-Date: 2026-05-09
+Date: 2026-05-21
 
 ## Scope
 
-Finish the active CivicInspect v0.2.0 product-depth target without touching queued modules.
+Finish the active CivicInspect v1.0.0 public-use module release without touching queued modules.
 
 Allowed write scope:
 
-- `C:\Users\scott\OneDrive\Desktop\Claude\CivicInspect`
+- `C:\Users\scott\OneDrive\Desktop\Claude\civicinspect`
 
 Read-only references:
 
 - `CivicSuite/docs/CivicSuiteUnifiedSpec.md`
-- recovered CivicPermit v0.2.0 staff queue and adversarial mock patterns
+- recovered CivicPermit v1.0.0 staff queue and adversarial mock patterns
 - recovered CivicCode v1.0.0 CivicCode context boundary
 
 ## Checklist Evidence
@@ -23,7 +23,7 @@ Read-only references:
 2. Trace runtime context.
    - Public mode remains deterministic when `CIVICINSPECT_CASE_DB_URL` is unset; persisted staff mode uses `CIVICINSPECT_CASE_DB_URL` plus `CIVICINSPECT_STAFF_API_KEY`.
 3. Fan out pattern search across the repo.
-   - Compared current CivicInspect surfaces with recovered CivicPermit v0.2.0 staff queue, context, and adversarial mock behavior.
+   - Compared current CivicInspect surfaces with recovered CivicPermit v1.0.0 staff queue, context, and adversarial mock behavior.
 4. Identify the data contract changing.
    - Version moves to `1.0.0`; staff review queue payloads return `review_id`, report/inspection references, status, assignment, resolution, visibility, timestamps, and boundary copy.
 5. State the blast radius before editing.
@@ -45,5 +45,5 @@ Read-only references:
 
 - `python -m pytest -q`: 24 passed, 1 warning.
 - `python -m ruff check .`: passed.
-- `bash scripts/verify-release.sh`: passed.
-- Browser QA: `docs/browser-qa-civicinspect-v1.0.0-summary.md`.
+- `bash scripts/verify-docs.sh`: passed.
+- Browser QA: `docs/browser-qa-civicinspect-v1.0.0-summary.md` and `docs/qa/current-civicinspect-release-qa/summary.md`.
