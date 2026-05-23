@@ -4,7 +4,7 @@ Date: 2026-05-21
 
 ## Status
 
-CivicInspect `v0.2.1` is the corrective demotion state after the mistaken 2026-05-21 `v1.0.0` release. The previous v1.0.0 release was published in error and is superseded by this honest sub-1.0.0 label.
+CivicInspect `v0.2.2` is the corrective demotion state after the mistaken 2026-05-21 `v1.0.0` release. This narrow truth-repair release is no functional upgrade; it exists solely to supersede the false v1.0.0 release from 2026-05-21 in GitHub's Latest impression. The previous v1.0.0 release was published in error and is superseded by this honest sub-1.0.0 label. The CivicCore pin is unchanged.
 
 ## Current Runtime Boundary
 

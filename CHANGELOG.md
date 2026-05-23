@@ -4,6 +4,13 @@ All notable changes to CivicInspect will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.2] - 2026-05-23
+
+- Narrow truth-repair release. No functional upgrade.
+- Exists solely to supersede the false v1.0.0 release from 2026-05-21 in
+  GitHub's Latest impression.
+- CivicCore pin unchanged.
+
 ## [0.2.1] - 2026-05-21
 
 ### Corrected

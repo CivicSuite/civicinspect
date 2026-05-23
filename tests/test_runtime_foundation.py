@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_package_version_is_100() -> None:
-    assert civicinspect.__version__ == "0.2.1"
+    assert civicinspect.__version__ == "0.2.2"
 
 
 def test_root_endpoint_states_runtime_boundary() -> None:
@@ -22,7 +22,7 @@ def test_root_endpoint_states_runtime_boundary() -> None:
     payload = response.json()
 
     assert payload["name"] == "CivicInspect"
-    assert payload["version"] == "0.2.1"
+    assert payload["version"] == "0.2.2"
     assert payload["status"] == "inspection support product with staff review queues"
     assert "staff review queues" in payload["message"]
     assert "CivicCode context packets" in payload["message"]
@@ -38,7 +38,7 @@ def test_health_endpoint_reports_versions() -> None:
 
     assert payload["status"] == "ok"
     assert payload["service"] == "civicinspect"
-    assert payload["version"] == "0.2.1"
+    assert payload["version"] == "0.2.2"
     assert re.fullmatch(r"\d+\.\d+\.\d+", payload["civiccore_version"])
 
 
@@ -73,7 +73,7 @@ def test_docs_gate_rejects_stale_markers() -> None:
 def test_docs_index_marks_v1_label_without_mojibake() -> None:
     text = (ROOT / "docs" / "index.html").read_text(encoding="utf-8")
 
-    assert "v0.2.1 inspection support + staff review queues" in text
+    assert "v0.2.2 inspection support + staff review queues" in text
     assert "staff review queues" in text
     assert "official findings" in text
     assert "Ãƒ" not in text
@@ -82,5 +82,5 @@ def test_docs_index_marks_v1_label_without_mojibake() -> None:
 def test_recovery_status_records_v1_scope() -> None:
     text = (ROOT / "docs" / "release-recovery-status.md").read_text(encoding="utf-8")
 
-    assert "v0.2.1" in text
+    assert "v0.2.2" in text
     assert "staff review queues" in text
