@@ -25,10 +25,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          VERSION="${GITHUB_REF_NAME#v}"
           gh release create "${GITHUB_REF_NAME}" \
             --repo "${GITHUB_REPOSITORY}" \
             --title "civicinspect ${GITHUB_REF_NAME}" \
-            --notes "CivicInspect ${GITHUB_REF_NAME} public-use module release." \
-            dist/civicinspect-1.0.0-py3-none-any.whl \
-            dist/civicinspect-1.0.0.tar.gz \
+            --notes "CivicInspect ${GITHUB_REF_NAME} narrow truth-repair release. No functional upgrade. Supersedes the false v1.0.0 Latest impression." \
+            "dist/civicinspect-${VERSION}-py3-none-any.whl" \
+            "dist/civicinspect-${VERSION}.tar.gz" \
             dist/SHA256SUMS.txt
