@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Aligned the current CivicInspect runtime dependency and current-facing docs to the published CivicCore v1.2.0 release wheel.
 - Wired the public `/civicinspect` draft workflow to the local report-draft API and safe DOM rendering.
+- Added bounded API request validation with actionable 422 responses.
 
 ## [0.2.2] - 2026-05-23
 

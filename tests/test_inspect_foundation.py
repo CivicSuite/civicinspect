@@ -95,6 +95,27 @@ def test_report_notice_and_export_apis() -> None:
     assert export.json()["case_id"] == "case-2026-001"
 
 
+def test_report_api_validation_is_actionable() -> None:
+    missing = client.post(
+        "/api/v1/civicinspect/reports/draft",
+        json={"inspection_id": "insp-100", "property_reference": "100 Main Street"},
+    )
+    oversized = client.post(
+        "/api/v1/civicinspect/reports/draft",
+        json={
+            "inspection_id": "insp-100",
+            "property_reference": "100 Main Street",
+            "inspector_notes": "x" * 8001,
+        },
+    )
+
+    assert missing.status_code == 422
+    assert missing.json()["detail"]["fields"] == ["inspector_notes"]
+    assert "required field names" in missing.json()["detail"]["fix"]
+    assert oversized.status_code == 422
+    assert oversized.json()["detail"]["fields"] == ["inspector_notes"]
+
+
 def test_public_ui_route_is_accessible_and_honest() -> None:
     response = client.get("/civicinspect")
     assert response.status_code == 200

@@ -5,8 +5,9 @@ import os
 from civiccore import __version__ as CIVICCORE_VERSION
 from civiccore.auth import staff_key_gate
 from fastapi import Depends, FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import HTMLResponse, JSONResponse
+from pydantic import BaseModel, Field
 
 from civicinspect import __version__
 from civicinspect.case_lookup import lookup_repeat_cases
@@ -35,63 +36,63 @@ _require_staff_key = staff_key_gate("CIVICINSPECT_STAFF_API_KEY", "X-CivicInspec
 
 
 class RepeatCaseLookupRequest(BaseModel):
-    property_reference: str
-    violation_type: str = ""
+    property_reference: str = Field(..., min_length=1, max_length=500)
+    violation_type: str = Field(default="", max_length=255)
 
 
 class ReportDraftRequest(BaseModel):
-    inspection_id: str
-    property_reference: str
-    inspector_notes: str
-    photo_observations: list[str] = []
-    voice_notes: str = ""
+    inspection_id: str = Field(..., min_length=1, max_length=160)
+    property_reference: str = Field(..., min_length=1, max_length=500)
+    inspector_notes: str = Field(..., max_length=8000)
+    photo_observations: list[str] = Field(default_factory=list, max_length=25)
+    voice_notes: str = Field(default="", max_length=8000)
 
 
 class NoticeDraftRequest(BaseModel):
-    case_id: str
-    property_reference: str
-    violation_type: str
-    observations: list[str]
+    case_id: str = Field(..., min_length=1, max_length=160)
+    property_reference: str = Field(..., min_length=1, max_length=500)
+    violation_type: str = Field(..., min_length=1, max_length=255)
+    observations: list[str] = Field(..., min_length=1, max_length=25)
 
 
 class InspectionExportRequest(BaseModel):
-    title: str
-    case_id: str
-    format: str = "markdown"
+    title: str = Field(..., min_length=1, max_length=255)
+    case_id: str = Field(..., min_length=1, max_length=160)
+    format: str = Field(default="markdown", max_length=40)
 
 
 class InspectionContextRequest(BaseModel):
-    inspection_id: str
-    property_reference: str
-    violation_type: str
-    code_context_id: str = ""
-    case_context_id: str = ""
-    source_date_status: str = "current"
+    inspection_id: str = Field(..., min_length=1, max_length=160)
+    property_reference: str = Field(..., min_length=1, max_length=500)
+    violation_type: str = Field(..., min_length=1, max_length=255)
+    code_context_id: str = Field(default="", max_length=160)
+    case_context_id: str = Field(default="", max_length=160)
+    source_date_status: str = Field(default="current", max_length=80)
 
 
 class IntegrationMockRequest(BaseModel):
-    scenario: str = "inspection-context"
-    role: str = "staff"
-    code_context_id: str = ""
-    case_context_id: str = ""
+    scenario: str = Field(default="inspection-context", max_length=160)
+    role: str = Field(default="staff", max_length=80)
+    code_context_id: str = Field(default="", max_length=160)
+    case_context_id: str = Field(default="", max_length=160)
     official_finding: bool = False
     citation_issued: bool = False
-    fine_amount: str | None = None
-    photo_analysis_source: str = "inspector_observation"
-    source_date_status: str = "current"
+    fine_amount: str | None = Field(default=None, max_length=80)
+    photo_analysis_source: str = Field(default="inspector_observation", max_length=160)
+    source_date_status: str = Field(default="current", max_length=80)
 
 
 class StaffReviewCreateRequest(BaseModel):
-    inspection_id: str
-    property_reference: str
-    reason: str
-    report_id: str | None = None
+    inspection_id: str = Field(..., min_length=1, max_length=160)
+    property_reference: str = Field(..., min_length=1, max_length=500)
+    reason: str = Field(..., min_length=1, max_length=1000)
+    report_id: str | None = Field(default=None, max_length=36)
 
 
 class StaffReviewUpdateRequest(BaseModel):
-    status: str
-    assigned_to: str | None = None
-    resolution: str | None = None
+    status: str = Field(..., min_length=1, max_length=80)
+    assigned_to: str | None = Field(default=None, max_length=255)
+    resolution: str | None = Field(default=None, max_length=2000)
 
 
 @app.get("/")
@@ -343,6 +344,31 @@ def staff_review_summary(
 ) -> dict[str, object]:
     _require_persistence_configured()
     return _staff_review_summary_payload(_get_case_repository().staff_review_summary())
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(_request: object, exc: RequestValidationError) -> JSONResponse:
+    fields = sorted(
+        {
+            str(error["loc"][-1])
+            for error in exc.errors()
+            if error.get("loc") and error["loc"][0] in {"body", "query", "path"}
+        }
+    )
+    field_text = ", ".join(fields) if fields else "request"
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": {
+                "message": f"CivicInspect could not validate: {field_text}.",
+                "fix": (
+                    "Send a JSON body with the required field names listed in the fields array. "
+                    "Keep text fields within documented bounds and use booleans for yes/no inputs."
+                ),
+                "fields": fields,
+            }
+        }
+    )
 
 
 def _case_database_url() -> str | None:
