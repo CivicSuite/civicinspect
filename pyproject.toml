@@ -19,6 +19,10 @@ dependencies = [
   "uvicorn[standard]>=0.30.0,<1.0.0",
 ]
 
+[project.scripts]
+civicinspect-db-status = "civicinspect.db_admin:main"
+civicinspect-import-repeat-cases = "civicinspect.data_import:main"
+
 [project.optional-dependencies]
 dev = [
   "build>=1.2.0,<2.0.0",

@@ -106,11 +106,15 @@ def root() -> dict[str, str]:
             "CivicInspect package, API foundation, sample repeat-case lookup, optional database-backed "
             "repeat-case and report-draft records, staff review queues, review-required CivicCode "
             "context packets, adversarial local integration mocks, inspector-owned report draft "
-            "helper, notice draft helper, records-ready export checklist, and public UI are online; "
+            "helper, notice draft helper, records-ready export checklist, readiness gate, and "
+            "API-backed public UI are online; "
             "official findings, citations, fines, inspection scheduling, live photo analysis, live "
             "LLM calls, and system-of-record integrations are not implemented."
         ),
-        "next_step": "Configure CIVICINSPECT_CASE_DB_URL and CIVICINSPECT_STAFF_API_KEY before using staff queues.",
+        "next_step": (
+            "Configure CIVICINSPECT_CASE_DB_URL, import local repeat-case records, and verify "
+            "/ready before public use."
+        ),
     }
 
 
@@ -124,6 +128,20 @@ def health() -> dict[str, str]:
         "version": __version__,
         "civiccore_version": CIVICCORE_VERSION,
     }
+
+
+@app.get("/ready")
+def ready() -> dict[str, object]:
+    """Return public-use readiness without treating sample fallback as customer data."""
+
+    return _readiness_payload()
+
+
+@app.get("/api/v1/civicinspect/readiness")
+def readiness() -> dict[str, object]:
+    """Return detailed CivicInspect local-data readiness for installers and operators."""
+
+    return _readiness_payload()
 
 
 @app.get("/civicinspect", response_class=HTMLResponse)
@@ -339,7 +357,7 @@ def _get_case_repository() -> InspectionCaseRepository:
     if _case_repository is None or db_url != _case_db_url:
         _dispose_case_repository()
         _case_db_url = db_url
-        _case_repository = InspectionCaseRepository(db_url=db_url)
+        _case_repository = InspectionCaseRepository(db_url=db_url, seed_defaults=False)
     return _case_repository
 
 
@@ -414,4 +432,39 @@ def _staff_review_summary_payload(summary: StaffReviewSummary) -> dict[str, obje
         "open_items": summary.open_items,
         "generated_at": summary.generated_at.isoformat(),
         "visibility": summary.visibility,
+    }
+
+
+def _readiness_payload() -> dict[str, object]:
+    db_url = _case_database_url()
+    if db_url is None:
+        return {
+            "status": "not-ready",
+            "ready": False,
+            "case_database_configured": False,
+            "schema_ready": False,
+            "schema_version": None,
+            "expected_schema_version": None,
+            "repeat_case_count": 0,
+            "blockers": ["Set CIVICINSPECT_CASE_DB_URL to a local inspection case database."],
+        }
+
+    repository = _get_case_repository()
+    schema_status = repository.schema_status()
+    repeat_case_count = repository.repeat_case_record_count()
+    blockers: list[str] = []
+    if not schema_status.ready:
+        blockers.append("Initialize the CivicInspect case database schema with civicinspect-db-status.")
+    if repeat_case_count == 0:
+        blockers.append("Import local repeat-case records with civicinspect-import-repeat-cases.")
+    ready_for_public_use = not blockers
+    return {
+        "status": "ready" if ready_for_public_use else "not-ready",
+        "ready": ready_for_public_use,
+        "case_database_configured": True,
+        "schema_ready": schema_status.ready,
+        "schema_version": schema_status.schema_version,
+        "expected_schema_version": schema_status.expected_schema_version,
+        "repeat_case_count": repeat_case_count,
+        "blockers": blockers,
     }

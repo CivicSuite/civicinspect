@@ -7,3 +7,5 @@ Current state: CivicInspect v0.2.2 corrective demotion state. This stage keeps t
 Set CIVICINSPECT_CASE_DB_URL to persist repeat-case, report-draft, and staff queue records. Set CIVICINSPECT_STAFF_API_KEY before using staff-only queue routes. Staff routes require X-CivicInspect-Role: staff or service and X-CivicInspect-Staff-Key with the configured key.
 
 CivicInspect does not issue official findings, citations, fines, notices, inspection schedules, legal advice, live photo analysis, live LLM calls, or system-of-record updates.
+
+Local data readiness: use civicinspect-db-status to initialize/check the local case schema. Load municipal repeat-case CSV rows with civicinspect-import-repeat-cases. Required columns are property_key, property_reference, violation_type, related_case_ids, and staff_note. /ready and /api/v1/civicinspect/readiness remain not-ready until CIVICINSPECT_CASE_DB_URL is configured and at least one local repeat-case record is loaded.

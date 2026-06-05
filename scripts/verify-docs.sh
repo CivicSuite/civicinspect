@@ -33,6 +33,8 @@ required=(
   "civicinspect/main.py"
   "civicinspect/case_lookup.py"
   "civicinspect/integration_mocks.py"
+  "civicinspect/db_admin.py"
+  "civicinspect/data_import.py"
   "civicinspect/report_draft.py"
   "civicinspect/notice_draft.py"
   "civicinspect/records_export.py"

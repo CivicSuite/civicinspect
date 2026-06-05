@@ -14,6 +14,15 @@ from civicinspect.report_draft import draft_inspection_report
 
 
 metadata = sa.MetaData()
+SCHEMA_VERSION = "2026-06-05-001"
+
+schema_migrations = sa.Table(
+    "schema_migrations",
+    metadata,
+    sa.Column("schema_version", sa.String(80), primary_key=True),
+    sa.Column("applied_at", sa.DateTime(timezone=True), nullable=False),
+    schema="civicinspect",
+)
 
 repeat_case_records = sa.Table(
     "repeat_case_records",
@@ -103,6 +112,15 @@ class StaffReviewSummary:
     visibility: str = "staff_only"
 
 
+@dataclass(frozen=True)
+class SchemaStatus:
+    schema_version: str | None
+    expected_schema_version: str
+    ready: bool
+    missing_tables: tuple[str, ...]
+    dialect: str
+
+
 class InspectionCaseRepository:
     """SQLAlchemy-backed repeat-case and report-draft records."""
 
@@ -114,9 +132,55 @@ class InspectionCaseRepository:
             self.engine = base_engine
             with self.engine.begin() as connection:
                 connection.execute(sa.text("CREATE SCHEMA IF NOT EXISTS civicinspect"))
-        metadata.create_all(self.engine)
+        self.migrate()
         if seed_defaults:
             self.seed_repeat_cases(SAMPLE_CASES.items())
+
+    def migrate(self) -> SchemaStatus:
+        """Apply non-destructive local schema setup and return the resulting status."""
+
+        metadata.create_all(self.engine)
+        with self.engine.begin() as connection:
+            exists = connection.execute(
+                sa.select(schema_migrations.c.schema_version).where(
+                    schema_migrations.c.schema_version == SCHEMA_VERSION
+                )
+            ).first()
+            if exists is None:
+                connection.execute(
+                    schema_migrations.insert().values(
+                        schema_version=SCHEMA_VERSION,
+                        applied_at=datetime.now(UTC),
+                    )
+                )
+        return self.schema_status()
+
+    def schema_status(self) -> SchemaStatus:
+        inspector = sa.inspect(self.engine)
+        translated_schema = None if self.engine.dialect.name == "sqlite" else "civicinspect"
+        available_tables = set(inspector.get_table_names(schema=translated_schema))
+        expected_tables = {
+            "repeat_case_records",
+            "inspection_report_records",
+            "staff_review_queue_records",
+            "schema_migrations",
+        }
+        missing_tables = tuple(sorted(expected_tables - available_tables))
+        schema_version = None
+        if "schema_migrations" not in missing_tables:
+            with self.engine.begin() as connection:
+                schema_version = connection.execute(
+                    sa.select(schema_migrations.c.schema_version)
+                    .order_by(schema_migrations.c.applied_at.desc())
+                    .limit(1)
+                ).scalar_one_or_none()
+        return SchemaStatus(
+            schema_version=schema_version,
+            expected_schema_version=SCHEMA_VERSION,
+            ready=schema_version == SCHEMA_VERSION and not missing_tables,
+            missing_tables=missing_tables,
+            dialect=self.engine.dialect.name,
+        )
 
     def seed_repeat_cases(self, cases: Iterable[tuple[str, tuple[str, ...]]]) -> None:
         now = datetime.now(UTC)
@@ -142,6 +206,59 @@ class InspectionCaseRepository:
                         updated_at=now,
                     )
                 )
+
+    def upsert_repeat_case(
+        self,
+        *,
+        property_key: str,
+        property_reference: str,
+        violation_type: str,
+        related_case_ids: tuple[str, ...],
+        staff_note: str,
+        disclaimer: str,
+    ) -> None:
+        normalized_key = property_key.strip().casefold()
+        if normalized_key == "":
+            raise ValueError("property_key is required.")
+        if not related_case_ids:
+            raise ValueError("related_case_ids must include at least one case id.")
+        now = datetime.now(UTC)
+        values = {
+            "property_reference": property_reference.strip() or property_key.strip(),
+            "violation_type": violation_type.strip() or "general inspection",
+            "related_case_ids": list(related_case_ids),
+            "staff_note": staff_note.strip(),
+            "disclaimer": disclaimer.strip(),
+            "updated_at": now,
+        }
+        if values["staff_note"] == "":
+            raise ValueError("staff_note is required.")
+        if values["disclaimer"] == "":
+            raise ValueError("disclaimer is required.")
+        with self.engine.begin() as connection:
+            exists = connection.execute(
+                sa.select(repeat_case_records.c.property_key).where(
+                    repeat_case_records.c.property_key == normalized_key
+                )
+            ).first()
+            if exists is None:
+                connection.execute(
+                    repeat_case_records.insert().values(
+                        property_key=normalized_key,
+                        created_at=now,
+                        **values,
+                    )
+                )
+            else:
+                connection.execute(
+                    repeat_case_records.update()
+                    .where(repeat_case_records.c.property_key == normalized_key)
+                    .values(**values)
+                )
+
+    def repeat_case_record_count(self) -> int:
+        with self.engine.begin() as connection:
+            return connection.execute(sa.select(sa.func.count()).select_from(repeat_case_records)).scalar_one()
 
     def lookup_repeat_cases(self, *, property_reference: str, violation_type: str = "") -> RepeatCaseResult:
         normalized = property_reference.strip().casefold()

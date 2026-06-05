@@ -11,6 +11,7 @@ CivicInspect is a FastAPI Python package pinned to the published `civiccore v1.2
 - repeat-case lookup,
 - inspector-owned report draft creation,
 - persisted report retrieval when a case database is configured,
+- schema/readiness checks for local repeat-case records,
 - staff-only review queue create/list/update/summary routes,
 - review-required CivicCode/case context packets,
 - adversarial local integration mocks,
@@ -26,6 +27,10 @@ Set `CIVICINSPECT_CASE_DB_URL` to persist repeat-case, report-draft, and staff q
 - `X-CivicInspect-Staff-Key: <configured key>`
 
 This local API-key gate is a release safeguard, not a replacement for production identity, tenant scoping, and audit logging.
+
+## Local Data Readiness
+
+Use `civicinspect-db-status` to initialize/check the local case schema. Load municipal repeat-case CSV rows with `civicinspect-import-repeat-cases`; required columns are `property_key`, `property_reference`, `violation_type`, `related_case_ids`, and `staff_note`. `/ready` and `/api/v1/civicinspect/readiness` remain not-ready until `CIVICINSPECT_CASE_DB_URL` is configured and at least one local repeat-case record is loaded.
 
 ## Product Boundary
 

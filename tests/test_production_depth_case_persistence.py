@@ -1,4 +1,6 @@
 from fastapi.testclient import TestClient
+import subprocess
+import sys
 
 import civicinspect.main as main_module
 from civicinspect.main import app
@@ -36,8 +38,52 @@ def test_case_and_report_records_persist(tmp_path) -> None:
     db_path.unlink(missing_ok=True)
 
 
+def test_case_repository_records_schema_status(tmp_path) -> None:
+    db_path = tmp_path / "schema-status.db"
+    repository = InspectionCaseRepository(db_url=f"sqlite:///{db_path}", seed_defaults=False)
+    try:
+        status = repository.schema_status()
+        repeat_cases = repository.repeat_case_record_count()
+    finally:
+        repository.engine.dispose()
+
+    assert status.ready is True
+    assert status.schema_version == status.expected_schema_version
+    assert status.missing_tables == ()
+    assert repeat_cases == 0
+
+
+def test_db_status_cli_reports_ready_schema(tmp_path) -> None:
+    db_path = tmp_path / "cli-status.db"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "civicinspect.db_admin",
+            "--db-url",
+            f"sqlite:///{db_path}",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert "CivicInspect schema ready" in result.stdout
+    assert "repeat_cases=0" in result.stdout
+
+
 def test_api_uses_configured_case_database(monkeypatch, tmp_path) -> None:
     db_path = tmp_path / "api-case-records.db"
+    repository = InspectionCaseRepository(db_url=f"sqlite:///{db_path}", seed_defaults=False)
+    repository.upsert_repeat_case(
+        property_key="100 main",
+        property_reference="100 Main Street",
+        violation_type="nuisance",
+        related_case_ids=("local-case-1", "local-case-2"),
+        staff_note="Confirm local case history before issuing any notice.",
+        disclaimer="Inspection support only.",
+    )
+    repository.engine.dispose()
     monkeypatch.setenv("CIVICINSPECT_CASE_DB_URL", f"sqlite:///{db_path}")
 
     try:
@@ -63,12 +109,91 @@ def test_api_uses_configured_case_database(monkeypatch, tmp_path) -> None:
 
     assert repeat_response.status_code == 200
     assert repeat_response.json()["repeat_case_count"] == 2
+    assert repeat_response.json()["related_case_ids"] == ["local-case-1", "local-case-2"]
     assert create_response.status_code == 200
     assert report_id
     assert get_response.status_code == 200
     assert get_response.json()["report_id"] == report_id
     assert create_response.json()["staff_review_id"]
     db_path.unlink(missing_ok=True)
+
+
+def test_configured_case_database_does_not_seed_sample_repeat_cases(monkeypatch, tmp_path) -> None:
+    db_path = tmp_path / "no-sample-seed.db"
+    monkeypatch.setenv("CIVICINSPECT_CASE_DB_URL", f"sqlite:///{db_path}")
+
+    try:
+        response = client.post(
+            "/api/v1/civicinspect/cases/repeat-lookup",
+            json={"property_reference": "100 Main Street", "violation_type": "nuisance"},
+        )
+    finally:
+        main_module._dispose_case_repository()
+        main_module._case_db_url = None
+
+    assert response.status_code == 200
+    assert response.json()["repeat_case_count"] == 2
+    repository = InspectionCaseRepository(db_url=f"sqlite:///{db_path}", seed_defaults=False)
+    try:
+        assert repository.repeat_case_record_count() == 0
+    finally:
+        repository.engine.dispose()
+
+
+def test_readiness_requires_configured_case_database() -> None:
+    response = client.get("/api/v1/civicinspect/readiness")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "not-ready"
+    assert payload["ready"] is False
+    assert payload["case_database_configured"] is False
+    assert "CIVICINSPECT_CASE_DB_URL" in payload["blockers"][0]
+
+
+def test_readiness_requires_imported_local_repeat_cases(monkeypatch, tmp_path) -> None:
+    db_path = tmp_path / "empty-ready.db"
+    monkeypatch.setenv("CIVICINSPECT_CASE_DB_URL", f"sqlite:///{db_path}")
+
+    try:
+        response = client.get("/ready")
+    finally:
+        main_module._dispose_case_repository()
+        main_module._case_db_url = None
+
+    payload = response.json()
+    assert payload["status"] == "not-ready"
+    assert payload["schema_ready"] is True
+    assert payload["repeat_case_count"] == 0
+    assert "Import local repeat-case records" in payload["blockers"][0]
+
+
+def test_readiness_passes_with_loaded_local_repeat_cases(monkeypatch, tmp_path) -> None:
+    db_path = tmp_path / "ready-runtime.db"
+    db_url = f"sqlite:///{db_path}"
+    repository = InspectionCaseRepository(db_url=db_url, seed_defaults=False)
+    repository.upsert_repeat_case(
+        property_key="100 main",
+        property_reference="100 Main Street",
+        violation_type="nuisance",
+        related_case_ids=("local-case-1",),
+        staff_note="Confirm local case history before issuing any notice.",
+        disclaimer="Inspection support only.",
+    )
+    repository.engine.dispose()
+    monkeypatch.setenv("CIVICINSPECT_CASE_DB_URL", db_url)
+
+    try:
+        response = client.get("/api/v1/civicinspect/readiness")
+    finally:
+        main_module._dispose_case_repository()
+        main_module._case_db_url = None
+
+    payload = response.json()
+    assert payload["status"] == "ready"
+    assert payload["ready"] is True
+    assert payload["schema_ready"] is True
+    assert payload["repeat_case_count"] == 1
 
 
 def test_report_lookup_requires_configured_database() -> None:

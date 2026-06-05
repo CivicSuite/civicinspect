@@ -28,6 +28,8 @@ Current state: **v0.2.2 corrective demotion state - deterministic scaffold; no r
 
 - `GET /` returns the shipped/planned boundary.
 - `GET /health` returns package and CivicCore versions.
+- `GET /ready` returns local-data readiness for installer and operator checks.
+- `GET /api/v1/civicinspect/readiness` returns detailed schema and repeat-case readiness.
 - `GET /civicinspect` returns the accessible public sample UI.
 - `POST /api/v1/civicinspect/cases/repeat-lookup` returns repeat-case context.
 - `POST /api/v1/civicinspect/reports/draft` returns an inspector-review-required report draft.
@@ -41,7 +43,7 @@ Current state: **v0.2.2 corrective demotion state - deterministic scaffold; no r
 - `GET /api/v1/civicinspect/staff/reviews/summary` returns staff queue counts.
 - `POST /api/v1/civicinspect/export` returns a records-ready inspection export checklist.
 
-Set `CIVICINSPECT_CASE_DB_URL` to enable persistent repeat-case, report-draft, and staff review records. Persisted staff routes require `CIVICINSPECT_STAFF_API_KEY`, `X-CivicInspect-Role: staff`, and matching `X-CivicInspect-Staff-Key` from a trusted staff workflow. The shared CivicCore `staff_key_gate` validates the key with timing-safe comparison.
+Set `CIVICINSPECT_CASE_DB_URL` to enable persistent repeat-case, report-draft, and staff review records. Use `civicinspect-db-status` to initialize/check schema, then load local repeat-case CSV rows with `civicinspect-import-repeat-cases`. `/ready` remains not-ready until the case database is configured and local repeat-case records are loaded. Persisted staff routes require `CIVICINSPECT_STAFF_API_KEY`, `X-CivicInspect-Role: staff`, and matching `X-CivicInspect-Staff-Key` from a trusted staff workflow. The shared CivicCore `staff_key_gate` validates the key with timing-safe comparison.
 
 ## Local Development
 

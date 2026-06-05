@@ -27,7 +27,8 @@ def test_root_endpoint_states_runtime_boundary() -> None:
     assert "CivicCode context packets" in payload["message"]
     assert "official findings" in payload["message"]
     assert "not implemented" in payload["message"]
-    assert "CIVICINSPECT_STAFF_API_KEY" in payload["next_step"]
+    assert "CIVICINSPECT_CASE_DB_URL" in payload["next_step"]
+    assert "/ready" in payload["next_step"]
 
 
 def test_health_endpoint_reports_versions() -> None:
@@ -59,6 +60,14 @@ def test_pyproject_uses_published_civiccore_release_wheel() -> None:
         for dependency in dependencies
     )
     assert pyproject["tool"]["hatch"]["metadata"]["allow-direct-references"] is True
+
+
+def test_pyproject_exposes_operator_database_scripts() -> None:
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    scripts = pyproject["project"]["scripts"]
+    assert scripts["civicinspect-db-status"] == "civicinspect.db_admin:main"
+    assert scripts["civicinspect-import-repeat-cases"] == "civicinspect.data_import:main"
 
 
 def test_docs_gate_rejects_stale_markers() -> None:
