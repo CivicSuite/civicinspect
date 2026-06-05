@@ -6,9 +6,9 @@ Date: 2026-05-21
 
 Finish the active CivicInspect v1.0.0 public-use module release without touching queued modules.
 
-Allowed write scope:
+Allowed write scope at that time:
 
-- `C:\Users\scott\OneDrive\Desktop\Claude\civicinspect`
+- Retired unsafe workspace path, preserved here only as historical context after path scrubbing.
 
 Read-only references:
 

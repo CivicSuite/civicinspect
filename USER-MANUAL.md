@@ -2,11 +2,11 @@
 
 CivicInspect helps inspection staff turn field notes into review-ready inspection drafts while preserving staff control over every decision.
 
-Current state: CivicInspect v0.2.2 corrective demotion state. This narrow truth-repair release is no functional upgrade; it exists solely to supersede the false v1.0.0 release from 2026-05-21 in GitHub's Latest impression, with the CivicCore pin unchanged. The module includes deterministic sample checks, optional database-backed repeat-case and report-draft records, staff review queue workflows, review-required CivicCode/case context packet support, adversarial local integration mocks, CivicCore v1.1.0 release-wheel alignment, and a public sample UI at `/civicinspect`.
+Current state: CivicInspect v0.2.2 corrective demotion state. This stage keeps the honest sub-1.0 label while aligning the runtime dependency to CivicCore 1.2.0. The module includes deterministic sample checks, optional database-backed repeat-case and report-draft records, staff review queue workflows, review-required CivicCode/case context packet support, adversarial local integration mocks, CivicCore v1.2.0 release-wheel alignment, and a public sample UI at `/civicinspect`.
 
 ## Runtime Surface
 
-CivicInspect is a FastAPI Python package pinned to the published `civiccore v1.1.0` release wheel. The runtime exposes:
+CivicInspect is a FastAPI Python package pinned to the published `civiccore v1.2.0` release wheel. The runtime exposes:
 
 - repeat-case lookup,
 - inspector-owned report draft creation,
@@ -36,7 +36,7 @@ CivicInspect does not issue official findings, citations, fines, notices, inspec
 ```mermaid
 flowchart LR
   Staff["Inspector or staff reviewer"] --> CivicInspect["CivicInspect v0.2.2"]
-  CivicInspect --> CivicCore["CivicCore v1.1.0"]
+  CivicInspect --> CivicCore["CivicCore v1.2.0"]
   CivicInspect -. released context ID .-> CivicCode["CivicCode context"]
   CivicInspect --> DB["Optional case database"]
 ```
