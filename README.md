@@ -14,7 +14,7 @@ Current state: **v0.2.2 corrective demotion state - deterministic scaffold; no r
 - Validates adversarial local integration mocks for spoofed roles, attempted findings, citations, fines, stale context, and live photo-analysis claims.
 - Drafts notice text for staff review without issuing notices.
 - Produces records-ready export checklists for inspection case files.
-- Demonstrates a public inspection-support UI at `/civicinspect`.
+- Demonstrates an API-backed public inspection-support UI at `/civicinspect`.
 
 ## What CivicInspect Does Not Do
 

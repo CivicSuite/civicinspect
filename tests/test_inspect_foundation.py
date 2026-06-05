@@ -106,3 +106,12 @@ def test_public_ui_route_is_accessible_and_honest() -> None:
     assert "staff-only review queues" in text
     assert "does not issue official findings" in text
     assert "system-of-record updates" in text
+
+
+def test_public_ui_uses_local_report_api_without_html_injection_sink() -> None:
+    text = client.get("/civicinspect").text
+
+    assert 'fetch("/api/v1/civicinspect/reports/draft"' in text
+    assert "window.setTimeout" not in text
+    assert "result.innerHTML" not in text
+    assert "textContent" in text

@@ -16,7 +16,7 @@ CivicInspect is a FastAPI Python package pinned to the published `civiccore v1.2
 - adversarial local integration mocks,
 - notice draft helpers,
 - records-ready export checklists,
-- public sample UI.
+- API-backed public sample UI.
 
 ## Staff Configuration
 

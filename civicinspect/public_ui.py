@@ -94,33 +94,74 @@ def render_public_lookup_page() -> str:
   const property = document.querySelector("#property");
   const notes = document.querySelector("#notes");
 
-  function setResult(kind, title, body) {
+  function clearResult(kind) {
     result.className = `result ${kind}`;
-    result.innerHTML = `<h3>${title}</h3><p>${body}</p>`;
+    result.replaceChildren();
   }
 
-  button.addEventListener("click", () => {
+  function appendText(tagName, text) {
+    const node = document.createElement(tagName);
+    node.textContent = text;
+    result.appendChild(node);
+    return node;
+  }
+
+  function setResult(kind, title, body) {
+    clearResult(kind);
+    appendText("h3", title);
+    appendText("p", body);
+  }
+
+  function renderDraft(payload) {
+    clearResult("");
+    appendText("h3", "Draft ready for staff review");
+    appendText("p", payload.summary || "Draft created for inspector review.");
+    const list = document.createElement("ul");
+    const observations = Array.isArray(payload.observation_bullets) ? payload.observation_bullets : [];
+    for (const observation of observations) {
+      const item = document.createElement("li");
+      item.textContent = observation;
+      list.appendChild(item);
+    }
+    if (observations.length) {
+      result.appendChild(list);
+    }
+    appendText("p", payload.disclaimer || "Inspectors own every decision before any official action.");
+  }
+
+  button.addEventListener("click", async () => {
     button.disabled = true;
-    setResult("", "Checking sample context", "Reviewing local sample data. This does not call a live inspection system.");
-    window.setTimeout(() => {
+    setResult("", "Drafting report", "Sending inspector-entered notes to the local CivicInspect API.");
+    try {
       const propertyText = property.value.trim();
       const noteText = notes.value.trim();
-      button.disabled = false;
       if (!propertyText || !noteText) {
         setResult("error", "More detail is needed", "Add a property reference and inspector notes, then draft again. CivicInspect cannot create useful review text from blank inputs.");
         return;
       }
-      const lower = propertyText.toLowerCase();
-      if (lower.includes("stale")) {
-        setResult("warning", "Staff refresh required", "This sample context is marked stale. Refresh code and case records in the system of record before using the draft.");
+      const response = await fetch("/api/v1/civicinspect/reports/draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          inspection_id: "public-sample",
+          property_reference: propertyText,
+          inspector_notes: noteText,
+          photo_observations: [],
+          voice_notes: ""
+        })
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        const detail = payload.detail || {};
+        setResult("error", "Draft failed", detail.fix || detail.message || "Review the input and try again.");
         return;
       }
-      if (!lower.includes("100 main") && !lower.includes("42 oak")) {
-        setResult("warning", "No repeat cases found", "Create a draft from the inspector notes, then confirm ownership, address, and case history in the system of record.");
-        return;
-      }
-      setResult("", "Draft ready for staff review", "Sample repeat-case context was found. The draft remains non-authoritative and must be reviewed by inspection staff before any notice or enforcement action.");
-    }, 250);
+      renderDraft(payload);
+    } catch {
+      setResult("error", "Draft failed", "The local CivicInspect API did not respond. Check the runtime logs and try again.");
+    } finally {
+      button.disabled = false;
+    }
   });
 </script>
 </body>
