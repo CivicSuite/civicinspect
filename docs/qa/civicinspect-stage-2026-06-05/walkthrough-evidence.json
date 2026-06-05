@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-06-05T22:31:46.132Z",
+  "base": "http://127.0.0.1:18168",
+  "checks": [
+    {
+      "name": "public-desktop",
+      "status": 200,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "heading": "Draft ready for staff review",
+      "itemCount": 1,
+      "resultText": "Draft ready for staff review\n\nDraft inspection report with 1 observation(s) and 2 related sample case(s).\n\nInspector observed overgrown vegetation near the alley and two prior related cases for the same property.\n\nCivicInspect provides inspection-support drafts only. Inspectors own every decision; the module does not issue official findings, citations, fines, or notices.",
+      "overflow": false,
+      "consoleMessages": [],
+      "requestFailures": [],
+      "screenshot": "C:/dev/Claude/civicinspect/docs/qa/civicinspect-stage-2026-06-05/public-desktop.png"
+    },
+    {
+      "name": "public-mobile",
+      "status": 200,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "heading": "Draft ready for staff review",
+      "itemCount": 1,
+      "resultText": "Draft ready for staff review\n\nDraft inspection report with 1 observation(s) and 2 related sample case(s).\n\nInspector observed overgrown vegetation near the alley and two prior related cases for the same property.\n\nCivicInspect provides inspection-support drafts only. Inspectors own every decision; the module does not issue official findings, citations, fines, or notices.",
+      "overflow": false,
+      "consoleMessages": [],
+      "requestFailures": [],
+      "screenshot": "C:/dev/Claude/civicinspect/docs/qa/civicinspect-stage-2026-06-05/public-mobile.png"
+    },
+    {
+      "name": "api-/",
+      "status": 200,
+      "body": "{\"name\":\"CivicInspect\",\"version\":\"0.2.2\",\"status\":\"inspection support product with staff review queues\",\"message\":\"CivicInspect package, API foundation, sample repeat-case lookup, optional database-backed repeat-case and report-draft records, staff review queues, review-required CivicCode context packets, adversarial local integration mocks, inspector-owned report draft helper, notice draft helper, records-ready export checklist, readiness gate, and API-backed public UI are online; official findings, citations, fines, inspection scheduling, live photo analysis, live LLM calls, and system-of-record integrations are not implemented.\",\"next_step\":\"Configure CIVICINSPECT_CASE_DB_URL, import local repeat-case records, and verify /ready before public use.\"}"
+    },
+    {
+      "name": "api-/health",
+      "status": 200,
+      "body": "{\"status\":\"ok\",\"service\":\"civicinspect\",\"version\":\"0.2.2\",\"civiccore_version\":\"1.2.0\"}"
+    },
+    {
+      "name": "api-/ready",
+      "status": 200,
+      "body": "{\"status\":\"not-ready\",\"ready\":false,\"case_database_configured\":false,\"schema_ready\":false,\"schema_version\":null,\"expected_schema_version\":null,\"repeat_case_count\":0,\"blockers\":[\"Set CIVICINSPECT_CASE_DB_URL to a local inspection case database.\"]}"
+    },
+    {
+      "name": "api-/api/v1/civicinspect/readiness",
+      "status": 200,
+      "body": "{\"status\":\"not-ready\",\"ready\":false,\"case_database_configured\":false,\"schema_ready\":false,\"schema_version\":null,\"expected_schema_version\":null,\"repeat_case_count\":0,\"blockers\":[\"Set CIVICINSPECT_CASE_DB_URL to a local inspection case database.\"]}"
+    },
+    {
+      "name": "api-report-valid",
+      "status": 200,
+      "body": {
+        "inspection_id": "insp-stage",
+        "property_reference": "100 Main Street",
+        "summary": "Draft inspection report with 1 observation(s) and 2 related sample case(s).",
+        "observation_bullets": [
+          "Overgrown vegetation observed."
+        ],
+        "inspector_review_required": true,
+        "disclaimer": "CivicInspect provides inspection-support drafts only. Inspectors own every decision; the module does not issue official findings, citations, fines, or notices.",
+        "report_id": null,
+        "staff_review_id": null
+      }
+    },
+    {
+      "name": "api-report-invalid",
+      "status": 422,
+      "body": {
+        "detail": {
+          "message": "CivicInspect could not validate: inspector_notes.",
+          "fix": "Send a JSON body with the required field names listed in the fields array. Keep text fields within documented bounds and use booleans for yes/no inputs.",
+          "fields": [
+            "inspector_notes"
+          ]
+        }
+      }
+    }
+  ]
+}
