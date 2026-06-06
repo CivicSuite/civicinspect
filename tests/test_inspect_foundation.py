@@ -129,10 +129,46 @@ def test_public_ui_route_is_accessible_and_honest() -> None:
     assert "system-of-record updates" in text
 
 
+def test_staff_ui_route_is_accessible_and_honest() -> None:
+    response = client.get("/civicinspect/staff")
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    text = response.text
+    assert '<a class="skip-link" href="#main">Skip to main content</a>' in text
+    assert '<main id="main" tabindex="-1">' in text
+    assert "CivicInspect Staff Workspace" in text
+    assert "Staff API key" in text
+    assert "Create review draft" in text
+    assert "does not issue findings" in text
+
+
+def test_integration_contracts_advertise_suite_links() -> None:
+    response = client.get("/api/v1/civicinspect/integration-contracts")
+
+    assert response.status_code == 200
+    payload = response.json()
+    contracts = {item["contract"] for item in payload["provides"]}
+    assert "civicinspect.inspection_report_draft.v1" in contracts
+    assert "civicinspect.staff_review_queue.v1" in contracts
+    assert "civicinspect.records_export_checklist.v1" in contracts
+    assert any("civicpermit" in item for item in payload["downstream_ready_for"])
+    assert any("civicaccess" in item for item in payload["downstream_ready_for"])
+    assert any("civicrecords-ai" in item for item in payload["downstream_ready_for"])
+
+
 def test_public_ui_uses_local_report_api_without_html_injection_sink() -> None:
     text = client.get("/civicinspect").text
 
     assert 'fetch("/api/v1/civicinspect/reports/draft"' in text
     assert "window.setTimeout" not in text
     assert "result.innerHTML" not in text
+    assert "textContent" in text
+
+
+def test_staff_ui_uses_local_apis_without_html_injection_sink() -> None:
+    text = client.get("/civicinspect/staff").text
+
+    assert 'fetch("/api/v1/civicinspect/reports/draft"' in text
+    assert 'fetch("/api/v1/civicinspect/staff/reviews"' in text
+    assert "innerHTML" not in text
     assert "textContent" in text

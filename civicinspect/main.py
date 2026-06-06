@@ -1,6 +1,7 @@
 """FastAPI runtime foundation for CivicInspect."""
 
 import os
+from pathlib import Path
 
 from civiccore import __version__ as CIVICCORE_VERSION
 from civiccore.auth import staff_key_gate
@@ -19,7 +20,7 @@ from civicinspect.persistence import (
     StaffReviewSummary,
     StoredInspectionReport,
 )
-from civicinspect.public_ui import render_public_lookup_page
+from civicinspect.public_ui import render_public_lookup_page, render_staff_page
 from civicinspect.records_export import build_inspection_export
 from civicinspect.report_draft import draft_inspection_report
 
@@ -113,8 +114,8 @@ def root() -> dict[str, str]:
             "LLM calls, and system-of-record integrations are not implemented."
         ),
         "next_step": (
-            "Configure CIVICINSPECT_CASE_DB_URL, import local repeat-case records, and verify "
-            "/ready before public use."
+            "Open /civicinspect/staff to create review-required inspection drafts, inspect the "
+            "staff queue, and preserve records-ready exports."
         ),
     }
 
@@ -150,6 +151,13 @@ def public_civicinspect_page() -> str:
     """Return the public sample inspection support UI."""
 
     return render_public_lookup_page()
+
+
+@app.get("/civicinspect/staff", response_class=HTMLResponse)
+def staff_civicinspect_page() -> str:
+    """Return the staff inspection review workspace."""
+
+    return render_staff_page()
 
 
 @app.post("/api/v1/civicinspect/cases/repeat-lookup")
@@ -277,6 +285,37 @@ def inspection_export(request: InspectionExportRequest) -> dict[str, object]:
     return result.__dict__
 
 
+@app.get("/api/v1/civicinspect/integration-contracts")
+def integration_contracts() -> dict[str, object]:
+    return {
+        "status": "ok",
+        "module": "civicinspect",
+        "provides": [
+            {
+                "contract": "civicinspect.inspection_report_draft.v1",
+                "endpoint": "/api/v1/civicinspect/reports/draft",
+                "purpose": "Create a persisted, review-required inspection report draft.",
+            },
+            {
+                "contract": "civicinspect.staff_review_queue.v1",
+                "endpoint": "/api/v1/civicinspect/staff/reviews",
+                "purpose": "Route inspection drafts through a staff-only review queue.",
+            },
+            {
+                "contract": "civicinspect.records_export_checklist.v1",
+                "endpoint": "/api/v1/civicinspect/export",
+                "target_module": "civicrecords-ai",
+                "purpose": "Prepare inspection draft provenance and retention checklist data.",
+            },
+        ],
+        "downstream_ready_for": [
+            "civicpermit inspection prerequisites",
+            "civicaccess public notice accessibility review",
+            "civicrecords-ai inspection case retention",
+        ],
+    }
+
+
 @app.post("/api/v1/civicinspect/staff/reviews")
 def create_staff_review(
     request: StaffReviewCreateRequest,
@@ -372,7 +411,16 @@ async def validation_exception_handler(_request: object, exc: RequestValidationE
 
 
 def _case_database_url() -> str | None:
-    return os.environ.get("CIVICINSPECT_CASE_DB_URL")
+    configured = os.environ.get("CIVICINSPECT_CASE_DB_URL")
+    if configured:
+        return configured
+    data_dir = Path(os.environ.get("CIVICINSPECT_DATA_DIR", Path.cwd() / "data")).resolve()
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return f"sqlite:///{data_dir / 'civicinspect-cases.db'}"
+
+
+def _uses_default_case_database() -> bool:
+    return not os.environ.get("CIVICINSPECT_CASE_DB_URL")
 
 
 def _get_case_repository() -> InspectionCaseRepository:
@@ -383,7 +431,10 @@ def _get_case_repository() -> InspectionCaseRepository:
     if _case_repository is None or db_url != _case_db_url:
         _dispose_case_repository()
         _case_db_url = db_url
-        _case_repository = InspectionCaseRepository(db_url=db_url, seed_defaults=False)
+        _case_repository = InspectionCaseRepository(
+            db_url=db_url,
+            seed_defaults=_uses_default_case_database(),
+        )
     return _case_repository
 
 
@@ -463,18 +514,6 @@ def _staff_review_summary_payload(summary: StaffReviewSummary) -> dict[str, obje
 
 def _readiness_payload() -> dict[str, object]:
     db_url = _case_database_url()
-    if db_url is None:
-        return {
-            "status": "not-ready",
-            "ready": False,
-            "case_database_configured": False,
-            "schema_ready": False,
-            "schema_version": None,
-            "expected_schema_version": None,
-            "repeat_case_count": 0,
-            "blockers": ["Set CIVICINSPECT_CASE_DB_URL to a local inspection case database."],
-        }
-
     repository = _get_case_repository()
     schema_status = repository.schema_status()
     repeat_case_count = repository.repeat_case_record_count()
@@ -488,6 +527,8 @@ def _readiness_payload() -> dict[str, object]:
         "status": "ready" if ready_for_public_use else "not-ready",
         "ready": ready_for_public_use,
         "case_database_configured": True,
+        "case_database_url": db_url,
+        "using_default_local_database": _uses_default_case_database(),
         "schema_ready": schema_status.ready,
         "schema_version": schema_status.schema_version,
         "expected_schema_version": schema_status.expected_schema_version,

@@ -140,15 +140,26 @@ def test_configured_case_database_does_not_seed_sample_repeat_cases(monkeypatch,
         repository.engine.dispose()
 
 
-def test_readiness_requires_configured_case_database() -> None:
-    response = client.get("/api/v1/civicinspect/readiness")
+def test_readiness_uses_default_local_database(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CIVICINSPECT_CASE_DB_URL", raising=False)
+    monkeypatch.setenv("CIVICINSPECT_DATA_DIR", str(tmp_path / "civicinspect-data"))
+
+    try:
+        response = client.get("/api/v1/civicinspect/readiness")
+    finally:
+        main_module._dispose_case_repository()
+        main_module._case_db_url = None
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["status"] == "not-ready"
-    assert payload["ready"] is False
-    assert payload["case_database_configured"] is False
-    assert "CIVICINSPECT_CASE_DB_URL" in payload["blockers"][0]
+    assert payload["status"] == "ready"
+    assert payload["ready"] is True
+    assert payload["case_database_configured"] is True
+    assert payload["using_default_local_database"] is True
+    assert payload["schema_ready"] is True
+    assert payload["repeat_case_count"] == 2
+    assert not payload["blockers"]
+    assert (tmp_path / "civicinspect-data" / "civicinspect-cases.db").is_file()
 
 
 def test_readiness_requires_imported_local_repeat_cases(monkeypatch, tmp_path) -> None:
@@ -196,11 +207,18 @@ def test_readiness_passes_with_loaded_local_repeat_cases(monkeypatch, tmp_path) 
     assert payload["repeat_case_count"] == 1
 
 
-def test_report_lookup_requires_configured_database() -> None:
-    response = client.get("/api/v1/civicinspect/reports/not-configured")
+def test_report_lookup_uses_default_local_database_and_returns_not_found(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CIVICINSPECT_CASE_DB_URL", raising=False)
+    monkeypatch.setenv("CIVICINSPECT_DATA_DIR", str(tmp_path / "report-lookup-runtime"))
 
-    assert response.status_code == 503
-    assert "Set CIVICINSPECT_CASE_DB_URL" in response.json()["detail"]["fix"]
+    try:
+        response = client.get("/api/v1/civicinspect/reports/not-configured")
+    finally:
+        main_module._dispose_case_repository()
+        main_module._case_db_url = None
+
+    assert response.status_code == 404
+    assert "Use a report_id returned by POST" in response.json()["detail"]["fix"]
 
 
 def test_staff_review_queue_lifecycle_is_staff_gated_and_persistent(monkeypatch, tmp_path) -> None:
@@ -272,3 +290,33 @@ def test_staff_review_queue_rejects_missing_or_spoofed_staff_key(monkeypatch, tm
     assert spoofed_key.status_code == 403
     assert "X-CivicInspect-Staff-Key" in spoofed_key.json()["detail"]["fix"]
     db_path.unlink(missing_ok=True)
+
+
+def test_default_local_database_supports_staff_review_queue(monkeypatch, tmp_path) -> None:
+    monkeypatch.delenv("CIVICINSPECT_CASE_DB_URL", raising=False)
+    monkeypatch.setenv("CIVICINSPECT_DATA_DIR", str(tmp_path / "local-runtime"))
+    monkeypatch.setenv("CIVICINSPECT_STAFF_API_KEY", "test-secret")
+    headers = {
+        "X-CivicInspect-Role": "staff",
+        "X-CivicInspect-Staff-Key": "test-secret",
+    }
+
+    try:
+        create_response = client.post(
+            "/api/v1/civicinspect/reports/draft",
+            json={
+                "inspection_id": "insp-default",
+                "property_reference": "100 Main Street",
+                "inspector_notes": "Default local database should persist this draft.",
+            },
+        )
+        list_response = client.get("/api/v1/civicinspect/staff/reviews", headers=headers)
+    finally:
+        main_module._dispose_case_repository()
+        main_module._case_db_url = None
+
+    assert create_response.status_code == 200
+    assert create_response.json()["report_id"]
+    assert create_response.json()["staff_review_id"]
+    assert list_response.status_code == 200
+    assert list_response.json()["items"][0]["inspection_id"] == "insp-default"

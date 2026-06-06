@@ -27,8 +27,8 @@ def test_root_endpoint_states_runtime_boundary() -> None:
     assert "CivicCode context packets" in payload["message"]
     assert "official findings" in payload["message"]
     assert "not implemented" in payload["message"]
-    assert "CIVICINSPECT_CASE_DB_URL" in payload["next_step"]
-    assert "/ready" in payload["next_step"]
+    assert "/civicinspect/staff" in payload["next_step"]
+    assert "records-ready exports" in payload["next_step"]
 
 
 def test_health_endpoint_reports_versions() -> None:

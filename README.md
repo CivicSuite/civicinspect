@@ -2,7 +2,7 @@
 
 CivicInspect is the CivicSuite module for inspection support: repeat-case lookup, inspector-owned report drafting, notice draft support, staff review queues, review-required CivicCode context packets, adversarial local integration mocks, and records-ready inspection exports.
 
-Current state: **v0.2.2 corrective demotion state - deterministic scaffold; no real AI layer, full frontend, Alembic migrations, real municipal data/search, or public-use gate. This stage keeps the honest sub-1.0 label while aligning the runtime dependency to CivicCore 1.2.0.** This repo provides a FastAPI package aligned to the CivicCore v1.2.0 release wheel, health/root endpoints, documentation gates, deterministic and database-backed repeat-case lookup, persisted report-draft records, staff-only review queue workflows, review-required inspection context packets, adversarial local integration mocks, notice draft support, records-ready export checklists, and accessible public sample UI at `/civicinspect`.
+Current state: **v0.2.2 local-first inspection support product.** This repo provides a FastAPI package aligned to the CivicCore v1.2.0 release wheel, health/root endpoints, documentation gates, default local SQLite persistence for bare installs, deterministic and database-backed repeat-case lookup, persisted report-draft records, staff-only review queue workflows, review-required inspection context packets, adversarial local integration mocks, notice draft support, records-ready export checklists, integration contracts, accessible public UI at `/civicinspect`, and staff workspace UI at `/civicinspect/staff`.
 
 ## What CivicInspect Does
 
@@ -15,6 +15,8 @@ Current state: **v0.2.2 corrective demotion state - deterministic scaffold; no r
 - Drafts notice text for staff review without issuing notices.
 - Produces records-ready export checklists for inspection case files.
 - Demonstrates an API-backed public inspection-support UI at `/civicinspect`.
+- Provides a staff workspace at `/civicinspect/staff`.
+- Publishes suite integration contracts for inspection draft, staff queue, and records export checklist handoffs.
 
 ## What CivicInspect Does Not Do
 
@@ -43,7 +45,7 @@ Current state: **v0.2.2 corrective demotion state - deterministic scaffold; no r
 - `GET /api/v1/civicinspect/staff/reviews/summary` returns staff queue counts.
 - `POST /api/v1/civicinspect/export` returns a records-ready inspection export checklist.
 
-Set `CIVICINSPECT_CASE_DB_URL` to enable persistent repeat-case, report-draft, and staff review records. Use `civicinspect-db-status` to initialize/check schema, then load local repeat-case CSV rows with `civicinspect-import-repeat-cases`. `/ready` remains not-ready until the case database is configured and local repeat-case records are loaded. Persisted staff routes require `CIVICINSPECT_STAFF_API_KEY`, `X-CivicInspect-Role: staff`, and matching `X-CivicInspect-Staff-Key` from a trusted staff workflow. The shared CivicCore `staff_key_gate` validates the key with timing-safe comparison.
+By default CivicInspect creates a local SQLite case database under `CIVICINSPECT_DATA_DIR` or `./data` and seeds starter repeat-case records so a bare install is immediately usable. Set `CIVICINSPECT_CASE_DB_URL` to point at municipal case data instead; configured databases are not sample-seeded, so use `civicinspect-db-status` to initialize/check schema, then load local repeat-case CSV rows with `civicinspect-import-repeat-cases`. `/ready` remains not-ready for configured databases until local repeat-case records are loaded. Persisted staff routes require `CIVICINSPECT_STAFF_API_KEY`, `X-CivicInspect-Role: staff`, and matching `X-CivicInspect-Staff-Key` from a trusted staff workflow. The shared CivicCore `staff_key_gate` validates the key with timing-safe comparison.
 
 ## Local Development
 
