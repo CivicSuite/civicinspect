@@ -1,0 +1,104 @@
+{
+  "desktop": {
+    "name": "desktop",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "publicTitle": "CivicInspect Inspection Support",
+    "publicResult": "Draft ready for staff review\n\nDraft inspection report with 1 observation(s) and 2 related sample case(s).\n\nInspector observed overgrown vegetation near the alley and two prior related cases for the same property.\n\nCivicInspect provides inspection-support drafts only. Inspectors own every decision; the module does not issue official findings, citations, fines, or notices.",
+    "staffTitle": "CivicInspect Staff Workspace",
+    "draftResult": "Draft 6e33f2d5-b12e-4c33-844d-ff9a73dd1d5f requires inspector review.\n\nDraft inspection report with 1 observation(s) and 2 related sample case(s).\n\nStaff review item: 955c8081-80f3-45ca-bf37-b1f331ffcd56",
+    "queueResult": "Set CIVICINSPECT_STAFF_API_KEY before using staff-only routes.",
+    "overflow": {
+      "width": 1440,
+      "client": 1440,
+      "overflow": false
+    },
+    "consoleMessages": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+      }
+    ],
+    "failedRequests": []
+  },
+  "mobile": {
+    "name": "mobile",
+    "viewport": {
+      "width": 390,
+      "height": 900
+    },
+    "publicTitle": "CivicInspect Inspection Support",
+    "publicResult": "Draft ready for staff review\n\nDraft inspection report with 1 observation(s) and 2 related sample case(s).\n\nInspector observed overgrown vegetation near the alley and two prior related cases for the same property.\n\nCivicInspect provides inspection-support drafts only. Inspectors own every decision; the module does not issue official findings, citations, fines, or notices.",
+    "staffTitle": "CivicInspect Staff Workspace",
+    "draftResult": "Draft 28ef4ac8-09b3-4556-a439-46b47a93e4ad requires inspector review.\n\nDraft inspection report with 1 observation(s) and 2 related sample case(s).\n\nStaff review item: ca829ccc-297b-4d36-8362-7a1b3ba351a2",
+    "queueResult": "Set CIVICINSPECT_STAFF_API_KEY before using staff-only routes.",
+    "overflow": {
+      "width": 390,
+      "client": 390,
+      "overflow": false
+    },
+    "consoleMessages": [
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+      }
+    ],
+    "failedRequests": []
+  },
+  "readiness": {
+    "status": 200,
+    "json": {
+      "status": "ready",
+      "ready": true,
+      "case_database_configured": true,
+      "case_database_url": "sqlite:///C:\\Users\\scott\\AppData\\Local\\Temp\\civicinspect-walkthrough-data\\civicinspect-cases.db",
+      "using_default_local_database": true,
+      "schema_ready": true,
+      "schema_version": "2026-06-05-001",
+      "expected_schema_version": "2026-06-05-001",
+      "repeat_case_count": 2,
+      "blockers": []
+    }
+  },
+  "contracts": {
+    "status": 200,
+    "json": {
+      "status": "ok",
+      "module": "civicinspect",
+      "provides": [
+        {
+          "contract": "civicinspect.inspection_report_draft.v1",
+          "endpoint": "/api/v1/civicinspect/reports/draft",
+          "purpose": "Create a persisted, review-required inspection report draft."
+        },
+        {
+          "contract": "civicinspect.staff_review_queue.v1",
+          "endpoint": "/api/v1/civicinspect/staff/reviews",
+          "purpose": "Route inspection drafts through a staff-only review queue."
+        },
+        {
+          "contract": "civicinspect.records_export_checklist.v1",
+          "endpoint": "/api/v1/civicinspect/export",
+          "target_module": "civicrecords-ai",
+          "purpose": "Prepare inspection draft provenance and retention checklist data."
+        }
+      ],
+      "downstream_ready_for": [
+        "civicpermit inspection prerequisites",
+        "civicaccess public notice accessibility review",
+        "civicrecords-ai inspection case retention"
+      ]
+    }
+  },
+  "note": "Staff queue load shows expected 503 on this walkthrough server because it was intentionally launched without CIVICINSPECT_STAFF_API_KEY; automated tests and suite installer env cover keyed staff queue success."
+}
